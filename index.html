@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="TOEIC Practice">
+  <meta name="theme-color" content="#2563eb">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <title>TOEIC Practice</title>
+  <style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --blue: #2563eb;
+  --blue-light: #dbeafe;
+  --green: #16a34a;
+  --green-light: #dcfce7;
+  --red: #dc2626;
+  --red-light: #fee2e2;
+  --orange: #ea580c;
+  --orange-light: #ffedd5;
+  --yellow-light: #fef9c3;
+  --bg: #f5f5f5;
+  --card: #ffffff;
+  --text: #1a1a1a;
+  --text-secondary: #6b7280;
+  --border: #e5e7eb;
+  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --radius: 16px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Screens */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ========== HOME ========== */
+#screen-home { padding: 0 16px 40px; }
+
+.home-header {
+  text-align: center;
+  padding: 32px 0 24px;
+}
+
+.app-title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.app-subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.btn-start-all {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, var(--blue), #1d4ed8);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: left;
+  gap: 14px;
+  transition: transform 0.15s;
+}
+.btn-start-all:active { transform: scale(0.98); }
+.btn-icon { font-size: 22px; }
+.btn-text { flex: 1; }
+.btn-text strong { display: block; font-size: 17px; }
+.btn-text small { opacity: 0.85; font-size: 13px; }
+.btn-arrow { font-size: 24px; opacity: 0.7; }
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 28px 0 14px;
+}
+
+.part-card {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 10px;
+  cursor: pointer;
+  gap: 14px;
+  border: none;
+  width: 100%;
+  text-align: left;
+  transition: transform 0.15s;
+}
+.part-card:active { transform: scale(0.98); }
+
+.part-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--blue-light);
+  color: var(--blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.part-info { flex: 1; }
+.part-info strong { display: block; font-size: 15px; }
+.part-info small { color: var(--text-secondary); font-size: 13px; }
+.part-arrow { color: var(--text-secondary); font-size: 18px; }
+
+.mini-quiz-row {
+  display: flex;
+  gap: 12px;
+}
+
+.mini-quiz-btn {
+  flex: 1;
+  padding: 20px 0;
+  background: var(--card);
+  border: none;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.15s;
+}
+.mini-quiz-btn:active { transform: scale(0.96); }
+.mini-quiz-btn strong { display: block; font-size: 28px; color: var(--green); }
+.mini-quiz-btn.orange strong { color: var(--orange); }
+.mini-quiz-btn.red strong { color: var(--red); }
+.mini-quiz-btn small { color: var(--text-secondary); font-size: 13px; }
+
+/* ========== QUIZ ========== */
+.progress-bar {
+  height: 4px;
+  background: var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--blue);
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.quiz-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.quiz-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.badge-part { background: var(--blue-light); color: var(--blue); }
+.badge-category { background: #f3f4f6; color: var(--text-secondary); }
+.badge-difficulty.easy { background: var(--green-light); color: var(--green); }
+.badge-difficulty.medium { background: var(--orange-light); color: var(--orange); }
+.badge-difficulty.hard { background: var(--red-light); color: var(--red); }
+
+.passage-area {
+  font-size: 14px;
+  line-height: 1.7;
+  padding: 14px;
+  background: #f9fafb;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  white-space: pre-wrap;
+  display: none;
+}
+.passage-area.visible { display: block; }
+
+.question-text {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.choices { display: flex; flex-direction: column; gap: 10px; }
+
+.choice-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1.5;
+  text-align: left;
+  transition: all 0.2s;
+  gap: 10px;
+}
+.choice-btn:active { transform: scale(0.98); }
+
+.choice-btn.correct {
+  background: var(--green-light);
+  border-color: var(--green);
+  cursor: default;
+}
+
+.choice-btn.incorrect {
+  background: var(--red-light);
+  border-color: var(--red);
+  cursor: default;
+}
+
+.choice-btn.dimmed {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.choice-btn .choice-icon {
+  margin-left: auto;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.quiz-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+}
+
+.btn-quit {
+  background: none;
+  border: none;
+  color: var(--red);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 12px;
+}
+
+.quiz-counter {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* ========== EXPLANATION ========== */
+.result-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+
+.result-banner.correct {
+  background: var(--green-light);
+}
+
+.result-banner.incorrect {
+  background: var(--red-light);
+}
+
+.result-banner .banner-icon { font-size: 28px; }
+.result-banner .banner-text strong {
+  display: block;
+  font-size: 20px;
+}
+.result-banner.correct .banner-text strong { color: var(--green); }
+.result-banner.incorrect .banner-text strong { color: var(--red); }
+.result-banner .banner-text small {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.explanation-box {
+  background: #fffbeb;
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.explanation-header {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.explanation-box p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #555;
+}
+
+.quiz-footer-next {
+  padding: 12px 16px;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+}
+
+.btn-next {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.btn-next:active { transform: scale(0.98); }
+
+/* ========== RESULT ========== */
+#screen-result {
+  padding: 0 16px;
+  align-items: center;
+}
+
+.result-content {
+  width: 100%;
+  max-width: 400px;
+  padding-top: 32px;
+}
+
+.score-circle {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 20px;
+}
+
+.score-circle svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.score-bg {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 10;
+}
+
+.score-ring {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 326.7;
+  stroke-dashoffset: 326.7;
+  transition: stroke-dashoffset 1s ease, stroke 0.5s;
+}
+
+.score-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.score-percent {
+  display: block;
+  font-size: 42px;
+  font-weight: 800;
+}
+
+.score-fraction {
+  display: block;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.score-message {
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 24px;
+}
+
+.stats-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  flex: 1;
+  text-align: center;
+  padding: 16px 8px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.stat-icon { font-size: 22px; margin-bottom: 4px; }
+.stat-card.green .stat-icon { color: var(--green); }
+.stat-card.red .stat-icon { color: var(--red); }
+.stat-card.blue .stat-icon { color: var(--blue); }
+.stat-value { font-size: 22px; font-weight: 700; }
+.stat-label { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+#part-breakdown {
+  margin-bottom: 24px;
+}
+
+.part-breakdown-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.part-result-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  gap: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.part-result-row:last-child { border-bottom: none; }
+.part-result-name { font-size: 14px; flex: 1; }
+.part-result-score { font-size: 14px; font-weight: 600; color: var(--text-secondary); width: 50px; text-align: right; }
+
+.part-result-bar {
+  width: 80px;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.part-result-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease;
+}
+
+.result-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 40px;
+}
+
+.btn-retry {
+  width: 100%;
+  padding: 14px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-home {
+  width: 100%;
+  padding: 14px;
+  background: var(--blue-light);
+  color: var(--blue);
+  border: none;
+  border-radius: var(--radius);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-retry:active, .btn-home:active { transform: scale(0.98); }
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.screen.active { animation: fadeIn 0.25s ease; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- Home Screen -->
+    <div id="screen-home" class="screen active">
+      <div class="home-header">
+        <h1 class="app-title">TOEIC Practice</h1>
+        <p class="app-subtitle">100問で実力チェック</p>
+      </div>
+
+      <button class="btn-start-all" onclick="startQuiz()">
+        <span class="btn-icon">▶</span>
+        <span class="btn-text">
+          <strong>全問チャレンジ</strong>
+          <small id="total-count"></small>
+        </span>
+        <span class="btn-arrow">›</span>
+      </button>
+
+      <h2 class="section-title">パート別学習</h2>
+      <div id="part-cards"></div>
+
+      <h2 class="section-title">ミニテスト</h2>
+      <div class="mini-quiz-row">
+        <button class="mini-quiz-btn" onclick="startQuiz(null, 10)">
+          <strong>10</strong><small>問</small>
+        </button>
+        <button class="mini-quiz-btn orange" onclick="startQuiz(null, 25)">
+          <strong>25</strong><small>問</small>
+        </button>
+        <button class="mini-quiz-btn red" onclick="startQuiz(null, 50)">
+          <strong>50</strong><small>問</small>
+        </button>
+      </div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="screen-quiz" class="screen">
+      <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+      <div class="quiz-content">
+        <div class="quiz-badges">
+          <span id="badge-part" class="badge badge-part"></span>
+          <span id="badge-category" class="badge badge-category"></span>
+          <span id="badge-difficulty" class="badge badge-difficulty"></span>
+        </div>
+        <div id="passage-area" class="passage-area"></div>
+        <p id="question-text" class="question-text"></p>
+        <div id="choices" class="choices"></div>
+      </div>
+      <div class="quiz-footer">
+        <button class="btn-quit" onclick="confirmQuit()">終了</button>
+        <span id="quiz-counter" class="quiz-counter"></span>
+      </div>
+    </div>
+
+    <!-- Explanation Screen -->
+    <div id="screen-explanation" class="screen">
+      <div class="progress-bar"><div id="progress-fill-exp" class="progress-fill"></div></div>
+      <div class="quiz-content">
+        <div id="result-banner" class="result-banner"></div>
+        <div id="exp-passage-area" class="passage-area"></div>
+        <p id="exp-question-text" class="question-text"></p>
+        <div id="exp-choices" class="choices"></div>
+        <div id="explanation-box" class="explanation-box">
+          <div class="explanation-header">💡 解説</div>
+          <p id="explanation-text"></p>
+        </div>
+      </div>
+      <div class="quiz-footer-next">
+        <button id="btn-next" class="btn-next" onclick="nextQuestion()">次の問題へ</button>
+      </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="screen-result" class="screen">
+      <div class="result-content">
+        <div class="score-circle">
+          <svg viewBox="0 0 120 120">
+            <circle class="score-bg" cx="60" cy="60" r="52"/>
+            <circle id="score-ring" class="score-ring" cx="60" cy="60" r="52"/>
+          </svg>
+          <div class="score-text">
+            <span id="score-percent" class="score-percent"></span>
+            <span id="score-fraction" class="score-fraction"></span>
+          </div>
+        </div>
+        <p id="score-message" class="score-message"></p>
+
+        <div class="stats-row">
+          <div class="stat-card green">
+            <div class="stat-icon">✓</div>
+            <div id="stat-correct" class="stat-value"></div>
+            <div class="stat-label">正解数</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-icon">✗</div>
+            <div id="stat-incorrect" class="stat-value"></div>
+            <div class="stat-label">不正解数</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-icon">%</div>
+            <div id="stat-rate" class="stat-value"></div>
+            <div class="stat-label">正答率</div>
+          </div>
+        </div>
+
+        <div id="part-breakdown"></div>
+
+        <div class="result-actions">
+          <button class="btn-retry" onclick="retryQuiz()">もう一度挑戦</button>
+          <button class="btn-home" onclick="goHome()">ホームに戻る</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+const QUESTIONS_DATA = {
+  "version": "1.0",
+  "questions": [
+    {
+      "id": 1,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "Please ______ the document before submitting it to the manager.",
+      "choices": ["A) review", "B) reviews", "C) reviewing", "D) reviewed"],
+      "correctIndex": 0,
+      "explanation": "Pleaseの後には動詞の原形が続きます。「Please + 動詞の原形」は丁寧な依頼の表現です。",
+      "category": "語彙"
+    },
+    {
+      "id": 2,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "The new employee was very ______ about starting her first day at work.",
+      "choices": ["A) excitement", "B) excited", "C) excitedly", "D) exciting"],
+      "correctIndex": 1,
+      "explanation": "be動詞の後に続く補語として形容詞が必要です。人の感情を表す場合は過去分詞形の形容詞「excited」を使います。",
+      "category": "品詞"
+    },
+    {
+      "id": 3,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "The conference will be held ______ March 15th.",
+      "choices": ["A) in", "B) at", "C) on", "D) by"],
+      "correctIndex": 2,
+      "explanation": "特定の日付の前には前置詞「on」を使います。「in」は月や年、「at」は時刻に使います。",
+      "category": "前置詞"
+    },
+    {
+      "id": 4,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "Ms. Tanaka ______ the marketing department for over ten years.",
+      "choices": ["A) leads", "B) has led", "C) is leading", "D) lead"],
+      "correctIndex": 1,
+      "explanation": "「for over ten years（10年以上）」という期間を表す表現があるため、現在完了形「has led」が適切です。",
+      "category": "時制"
+    },
+    {
+      "id": 5,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "The office will be closed ______ it is a national holiday.",
+      "choices": ["A) although", "B) because", "C) unless", "D) while"],
+      "correctIndex": 1,
+      "explanation": "「祝日なのでオフィスは閉まります」という因果関係を表すため、理由を示す接続詞「because」が正解です。",
+      "category": "接続詞"
+    },
+    {
+      "id": 6,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "Each department must submit ______ budget report by Friday.",
+      "choices": ["A) it", "B) its", "C) their", "D) them"],
+      "correctIndex": 1,
+      "explanation": "「Each department」は単数扱いなので、所有格の代名詞は「its」が適切です。",
+      "category": "代名詞"
+    },
+    {
+      "id": 7,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "All employees are required to ______ the safety training session.",
+      "choices": ["A) attend", "B) produce", "C) deliver", "D) maintain"],
+      "correctIndex": 0,
+      "explanation": "「安全研修セッションに出席する」という意味で、「attend（出席する）」が最も適切です。",
+      "category": "語彙"
+    },
+    {
+      "id": 8,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "The manager spoke ______ to the team about the upcoming changes.",
+      "choices": ["A) direct", "B) direction", "C) directly", "D) directed"],
+      "correctIndex": 2,
+      "explanation": "動詞「spoke」を修飾するには副詞が必要です。「directly（直接的に）」が正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 9,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "The package was delivered ______ the reception desk this morning.",
+      "choices": ["A) to", "B) for", "C) with", "D) from"],
+      "correctIndex": 0,
+      "explanation": "「deliver to ～（～に届ける）」という組み合わせで、前置詞「to」が正解です。",
+      "category": "前置詞"
+    },
+    {
+      "id": 10,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "We need to find a ______ for the broken printer as soon as possible.",
+      "choices": ["A) replace", "B) replacing", "C) replacement", "D) replaced"],
+      "correctIndex": 2,
+      "explanation": "冠詞「a」の後には名詞が必要です。「replacement（代替品）」が名詞形で正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 11,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "The quarterly sales figures were ______ higher than the company had anticipated.",
+      "choices": ["A) significant", "B) significantly", "C) significance", "D) signify"],
+      "correctIndex": 1,
+      "explanation": "比較級「higher」を修飾するには副詞が必要です。「significantly（著しく）」が正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 12,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "______ the renovation is complete, the office will reopen on Monday.",
+      "choices": ["A) Once", "B) During", "C) While", "D) Until"],
+      "correctIndex": 0,
+      "explanation": "「改修が完了したら、オフィスは月曜日に再開します」という意味で、「Once（一度～したら）」が最も適切です。",
+      "category": "接続詞"
+    },
+    {
+      "id": 13,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "The CEO praised the team for ______ outstanding performance during the product launch.",
+      "choices": ["A) it", "B) its", "C) their", "D) them"],
+      "correctIndex": 2,
+      "explanation": "「the team」は集合名詞で、メンバー個々を指す場合は複数扱いとなり、所有格「their」が適切です。",
+      "category": "代名詞"
+    },
+    {
+      "id": 14,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "Applications must be received no later ______ April 30th to be considered.",
+      "choices": ["A) as", "B) than", "C) that", "D) then"],
+      "correctIndex": 1,
+      "explanation": "「no later than ～（～までに）」は期限を表す定型表現です。「than」が正解です。",
+      "category": "語彙"
+    },
+    {
+      "id": 15,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "By the time the clients arrive, we ______ the presentation materials.",
+      "choices": ["A) prepare", "B) will prepare", "C) will have prepared", "D) are preparing"],
+      "correctIndex": 2,
+      "explanation": "「By the time ～（～するまでに）」は未来完了形と共に使われます。「will have prepared」が正解です。",
+      "category": "時制"
+    },
+    {
+      "id": 16,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "The company is looking for candidates with ______ in project management.",
+      "choices": ["A) experience", "B) experienced", "C) experiencing", "D) experiential"],
+      "correctIndex": 0,
+      "explanation": "前置詞「with」の後には名詞が続きます。「experience（経験）」が名詞で正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 17,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "The building is conveniently located ______ walking distance of the train station.",
+      "choices": ["A) between", "B) within", "C) among", "D) through"],
+      "correctIndex": 1,
+      "explanation": "「within walking distance of ～（～から徒歩圏内に）」は定型表現です。「within」が正解です。",
+      "category": "前置詞"
+    },
+    {
+      "id": 18,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "Mr. Kim asked ______ could volunteer to work the weekend shift.",
+      "choices": ["A) that", "B) what", "C) who", "D) which"],
+      "correctIndex": 2,
+      "explanation": "「誰が週末シフトにボランティアできるか」を尋ねているため、人を表す疑問代名詞「who」が正解です。",
+      "category": "代名詞"
+    },
+    {
+      "id": 19,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "The warranty will be ______ if the product is not used according to the instructions.",
+      "choices": ["A) void", "B) valid", "C) vital", "D) visible"],
+      "correctIndex": 0,
+      "explanation": "「説明書通りに使用されなかった場合、保証は無効になります」。「void（無効な）」が正解です。",
+      "category": "語彙"
+    },
+    {
+      "id": 20,
+      "part": "Part 5",
+      "difficulty": "hard",
+      "passage": null,
+      "sentence": "______ the ongoing negotiations between the two firms, no public statements should be made.",
+      "choices": ["A) In spite of", "B) In light of", "C) In addition to", "D) In favor of"],
+      "correctIndex": 1,
+      "explanation": "「2社間の交渉が進行中であることを考慮して、公式声明は出すべきではない」。「In light of（～を考慮して）」が正解です。",
+      "category": "前置詞"
+    },
+    {
+      "id": 21,
+      "part": "Part 5",
+      "difficulty": "hard",
+      "passage": null,
+      "sentence": "The consultant recommended that the company ______ its marketing strategy immediately.",
+      "choices": ["A) revises", "B) revised", "C) revise", "D) revising"],
+      "correctIndex": 2,
+      "explanation": "「recommend that + 主語 + 動詞の原形」は仮定法現在の構文です。動詞は原形「revise」が正解です。",
+      "category": "時制"
+    },
+    {
+      "id": 22,
+      "part": "Part 5",
+      "difficulty": "hard",
+      "passage": null,
+      "sentence": "The merger, ______ was announced last week, is expected to be finalized by December.",
+      "choices": ["A) that", "B) which", "C) what", "D) where"],
+      "correctIndex": 1,
+      "explanation": "コンマで区切られた非制限用法の関係代名詞節では「which」を使います。「that」は非制限用法では使えません。",
+      "category": "代名詞"
+    },
+    {
+      "id": 23,
+      "part": "Part 5",
+      "difficulty": "hard",
+      "passage": null,
+      "sentence": "The new policy was implemented to ensure ______ with international trade regulations.",
+      "choices": ["A) compliant", "B) comply", "C) compliance", "D) compliantly"],
+      "correctIndex": 2,
+      "explanation": "動詞「ensure」の目的語として名詞が必要です。「compliance（遵守）」が名詞形で正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 24,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "Could you please send me a ______ of the meeting agenda?",
+      "choices": ["A) copy", "B) piece", "C) share", "D) part"],
+      "correctIndex": 0,
+      "explanation": "「会議の議題のコピーを送っていただけますか」。「a copy of ～（～のコピー）」が最も自然です。",
+      "category": "語彙"
+    },
+    {
+      "id": 25,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "The store is open ______ 9 A.M. to 6 P.M. on weekdays.",
+      "choices": ["A) between", "B) from", "C) since", "D) during"],
+      "correctIndex": 1,
+      "explanation": "「from ～ to ～（～から～まで）」は時間の範囲を表す定型表現です。",
+      "category": "前置詞"
+    },
+    {
+      "id": 26,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "Employees who wish to participate in the training program should register ______.",
+      "choices": ["A) them", "B) themselves", "C) their", "D) theirs"],
+      "correctIndex": 1,
+      "explanation": "主語「Employees」と目的語が同一人物を指すため、再帰代名詞「themselves」が正解です。",
+      "category": "代名詞"
+    },
+    {
+      "id": 27,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "The report indicates that customer satisfaction has ______ improved over the past year.",
+      "choices": ["A) steady", "B) steadily", "C) steadiness", "D) steadied"],
+      "correctIndex": 1,
+      "explanation": "動詞「improved」を修飾するには副詞が必要です。「steadily（着実に）」が正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 28,
+      "part": "Part 5",
+      "difficulty": "hard",
+      "passage": null,
+      "sentence": "______ the budget constraints, the research team managed to complete the project on time.",
+      "choices": ["A) Despite", "B) Because of", "C) Due to", "D) Owing to"],
+      "correctIndex": 0,
+      "explanation": "「予算の制約にもかかわらず」という逆接の意味が必要です。「Despite（～にもかかわらず）」が正解です。",
+      "category": "接続詞"
+    },
+    {
+      "id": 29,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "The seminar will provide participants with ______ information about investment strategies.",
+      "choices": ["A) value", "B) valuable", "C) valuably", "D) valued"],
+      "correctIndex": 1,
+      "explanation": "名詞「information」を修飾するには形容詞が必要です。「valuable（貴重な）」が正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 30,
+      "part": "Part 5",
+      "difficulty": "hard",
+      "passage": null,
+      "sentence": "Had the shipment arrived on time, we ______ able to meet the deadline.",
+      "choices": ["A) would be", "B) would have been", "C) will be", "D) had been"],
+      "correctIndex": 1,
+      "explanation": "「Had + 主語 + 過去分詞」は仮定法過去完了の倒置形です。帰結節は「would have been」が正解です。",
+      "category": "時制"
+    },
+    {
+      "id": 31,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "The company offers a wide ______ of health insurance plans to its employees.",
+      "choices": ["A) range", "B) amount", "C) number", "D) volume"],
+      "correctIndex": 0,
+      "explanation": "「a wide range of ～（幅広い～）」は定型表現で、種類の多さを表します。",
+      "category": "語彙"
+    },
+    {
+      "id": 32,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "The factory will remain operational ______ the inspection is being conducted.",
+      "choices": ["A) since", "B) while", "C) once", "D) unless"],
+      "correctIndex": 1,
+      "explanation": "「検査が行われている間」という同時進行を表すため、「while（～の間）」が正解です。",
+      "category": "接続詞"
+    },
+    {
+      "id": 33,
+      "part": "Part 5",
+      "difficulty": "hard",
+      "passage": null,
+      "sentence": "The firm's revenues have grown ______ since the introduction of its online platform.",
+      "choices": ["A) exponential", "B) exponentially", "C) exponent", "D) exponentials"],
+      "correctIndex": 1,
+      "explanation": "動詞「have grown」を修飾するには副詞が必要です。「exponentially（飛躍的に）」が正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 34,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "The hotel is ______ to the convention center, making it ideal for business travelers.",
+      "choices": ["A) adjacent", "B) familiar", "C) responsible", "D) available"],
+      "correctIndex": 0,
+      "explanation": "「adjacent to ～（～に隣接した）」が文脈に合います。ホテルがコンベンションセンターに隣接しているという意味です。",
+      "category": "語彙"
+    },
+    {
+      "id": 35,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "The architect presented several designs, ______ of which met the client's requirements.",
+      "choices": ["A) all", "B) each", "C) every", "D) any"],
+      "correctIndex": 0,
+      "explanation": "「all of which」は関係代名詞節で「そのすべてが」を意味します。「every」は「of which」とは使えません。",
+      "category": "代名詞"
+    },
+    {
+      "id": 36,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "Visitors must sign ______ at the front desk before entering the building.",
+      "choices": ["A) up", "B) in", "C) off", "D) out"],
+      "correctIndex": 1,
+      "explanation": "「sign in（受付で記帳する）」は建物に入る際の手続きを表す句動詞です。",
+      "category": "語彙"
+    },
+    {
+      "id": 37,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "The company's annual revenue ______ by 15 percent compared to the previous year.",
+      "choices": ["A) increases", "B) increased", "C) has increasing", "D) will increase"],
+      "correctIndex": 1,
+      "explanation": "「compared to the previous year（前年と比較して）」は過去の事実を述べているため、過去形「increased」が正解です。",
+      "category": "時制"
+    },
+    {
+      "id": 38,
+      "part": "Part 5",
+      "difficulty": "hard",
+      "passage": null,
+      "sentence": "The board of directors will not proceed with the acquisition ______ all legal concerns have been addressed.",
+      "choices": ["A) as long as", "B) even though", "C) in case", "D) until"],
+      "correctIndex": 3,
+      "explanation": "「すべての法的懸念が解決されるまで買収を進めない」。「until（～するまで）」が文脈に合います。",
+      "category": "接続詞"
+    },
+    {
+      "id": 39,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "The receptionist asked the visitor to take a seat and wait ______ a moment.",
+      "choices": ["A) on", "B) at", "C) for", "D) in"],
+      "correctIndex": 2,
+      "explanation": "「wait for ～（～を待つ）」の前置詞は「for」です。「wait for a moment（少々お待ちください）」。",
+      "category": "前置詞"
+    },
+    {
+      "id": 40,
+      "part": "Part 5",
+      "difficulty": "hard",
+      "passage": null,
+      "sentence": "The CEO's decision to restructure the company was met with considerable ______ from long-term employees.",
+      "choices": ["A) resist", "B) resistant", "C) resistance", "D) resistantly"],
+      "correctIndex": 2,
+      "explanation": "形容詞「considerable」の後には名詞が必要です。「resistance（抵抗）」が名詞形で正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 41,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "The product launch has been postponed ______ further notice.",
+      "choices": ["A) since", "B) until", "C) by", "D) after"],
+      "correctIndex": 1,
+      "explanation": "「until further notice（追って通知があるまで）」は定型表現です。",
+      "category": "前置詞"
+    },
+    {
+      "id": 42,
+      "part": "Part 5",
+      "difficulty": "hard",
+      "passage": null,
+      "sentence": "Not only did the company exceed its sales targets, ______ it also expanded into three new markets.",
+      "choices": ["A) and", "B) but", "C) so", "D) or"],
+      "correctIndex": 1,
+      "explanation": "「Not only ～ but also ～（～だけでなく～も）」は相関接続詞の構文です。「but」が正解です。",
+      "category": "接続詞"
+    },
+    {
+      "id": 43,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "The marketing team is ______ for developing the advertising campaign for the new product line.",
+      "choices": ["A) responsible", "B) capable", "C) eligible", "D) dependable"],
+      "correctIndex": 0,
+      "explanation": "「responsible for ～（～の責任がある）」が文脈に合います。「capable of」「eligible for」は意味が異なります。",
+      "category": "語彙"
+    },
+    {
+      "id": 44,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "The training manual ______ last updated in January of this year.",
+      "choices": ["A) is", "B) was", "C) has", "D) had"],
+      "correctIndex": 1,
+      "explanation": "「in January of this year（今年1月に）」という過去の特定時点を示す表現があるため、過去形「was」が正解です。",
+      "category": "時制"
+    },
+    {
+      "id": 45,
+      "part": "Part 5",
+      "difficulty": "hard",
+      "passage": null,
+      "sentence": "The proposal was rejected on the ______ that it did not adequately address environmental concerns.",
+      "choices": ["A) grounds", "B) basis", "C) reasons", "D) causes"],
+      "correctIndex": 0,
+      "explanation": "「on the grounds that ～（～という理由で）」は定型表現です。「basis」の場合は「on the basis of」となります。",
+      "category": "語彙"
+    },
+    {
+      "id": 46,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "Passengers are advised to arrive at the airport at least two hours ______ departure.",
+      "choices": ["A) prior to", "B) ahead", "C) previous", "D) in front of"],
+      "correctIndex": 0,
+      "explanation": "「prior to ～（～の前に）」は「before」のフォーマルな表現です。「ahead」は単独では使えず「ahead of」が必要です。",
+      "category": "前置詞"
+    },
+    {
+      "id": 47,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "The company will ______ a new branch office in Singapore next quarter.",
+      "choices": ["A) open", "B) opening", "C) opened", "D) opens"],
+      "correctIndex": 0,
+      "explanation": "助動詞「will」の後には動詞の原形が続きます。「open」が正解です。",
+      "category": "時制"
+    },
+    {
+      "id": 48,
+      "part": "Part 5",
+      "difficulty": "hard",
+      "passage": null,
+      "sentence": "______ impressive the candidate's resume may be, a thorough interview process is still necessary.",
+      "choices": ["A) Despite", "B) However", "C) Whatever", "D) Although"],
+      "correctIndex": 1,
+      "explanation": "「However + 形容詞 + S + V（どんなに～であっても）」は譲歩を表す構文です。「However impressive」が正解です。",
+      "category": "接続詞"
+    },
+    {
+      "id": 49,
+      "part": "Part 5",
+      "difficulty": "medium",
+      "passage": null,
+      "sentence": "The supervisor commended the staff for their ______ to completing the project ahead of schedule.",
+      "choices": ["A) dedicate", "B) dedicated", "C) dedicating", "D) dedication"],
+      "correctIndex": 3,
+      "explanation": "所有格「their」の後には名詞が必要です。「dedication（献身）」が名詞形で正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 50,
+      "part": "Part 5",
+      "difficulty": "easy",
+      "passage": null,
+      "sentence": "Please make sure to turn ______ all the lights before leaving the office.",
+      "choices": ["A) off", "B) up", "C) in", "D) on"],
+      "correctIndex": 0,
+      "explanation": "「turn off（消す）」は電気やスイッチを切る句動詞です。「turn on」はつけるという意味です。",
+      "category": "語彙"
+    },
+    {
+      "id": 51,
+      "part": "Part 6",
+      "difficulty": "medium",
+      "passage": "To: All Staff\nFrom: Human Resources Department\nSubject: Updated Leave Policy\n\nDear Colleagues,\n\nWe are writing to inform you of important changes to the company's leave policy, effective May 1st. After careful (1)______ with department heads and employee representatives, the following updates have been approved.\n\nFirst, the annual paid leave allowance will increase from 15 to 18 days for employees who have completed at least two years of (2)______. New employees will continue to receive 15 days.\n\nSecond, employees may now carry over up to five unused leave days to the following year. (3)______, any days beyond five will expire at the end of the fiscal year.\n\nThird, requests for extended leave of more than five consecutive days must be submitted at least three weeks in advance. This will help managers plan (4)______ and ensure adequate staffing levels.\n\nPlease review the full updated policy document, which is available on the company intranet. If you have any questions, do not (5)______ to contact the HR department.\n\nBest regards,\nSarah Mitchell\nHR Director",
+      "sentence": "Question for blank (1): After careful ______ with department heads and employee representatives, the following updates have been approved.",
+      "choices": ["A) consult", "B) consulting", "C) consultation", "D) consultative"],
+      "correctIndex": 2,
+      "explanation": "形容詞「careful」の後には名詞が必要です。「consultation（協議）」が名詞形で正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 52,
+      "part": "Part 6",
+      "difficulty": "easy",
+      "passage": "To: All Staff\nFrom: Human Resources Department\nSubject: Updated Leave Policy\n\nDear Colleagues,\n\nWe are writing to inform you of important changes to the company's leave policy, effective May 1st. After careful (1)______ with department heads and employee representatives, the following updates have been approved.\n\nFirst, the annual paid leave allowance will increase from 15 to 18 days for employees who have completed at least two years of (2)______. New employees will continue to receive 15 days.\n\nSecond, employees may now carry over up to five unused leave days to the following year. (3)______, any days beyond five will expire at the end of the fiscal year.\n\nThird, requests for extended leave of more than five consecutive days must be submitted at least three weeks in advance. This will help managers plan (4)______ and ensure adequate staffing levels.\n\nPlease review the full updated policy document, which is available on the company intranet. If you have any questions, do not (5)______ to contact the HR department.\n\nBest regards,\nSarah Mitchell\nHR Director",
+      "sentence": "Question for blank (2): ...for employees who have completed at least two years of ______.",
+      "choices": ["A) service", "B) serving", "C) served", "D) services"],
+      "correctIndex": 0,
+      "explanation": "「years of service（勤続年数）」はビジネスでよく使われる定型表現です。",
+      "category": "語彙"
+    },
+    {
+      "id": 53,
+      "part": "Part 6",
+      "difficulty": "medium",
+      "passage": "To: All Staff\nFrom: Human Resources Department\nSubject: Updated Leave Policy\n\nDear Colleagues,\n\nWe are writing to inform you of important changes to the company's leave policy, effective May 1st. After careful (1)______ with department heads and employee representatives, the following updates have been approved.\n\nFirst, the annual paid leave allowance will increase from 15 to 18 days for employees who have completed at least two years of (2)______. New employees will continue to receive 15 days.\n\nSecond, employees may now carry over up to five unused leave days to the following year. (3)______, any days beyond five will expire at the end of the fiscal year.\n\nThird, requests for extended leave of more than five consecutive days must be submitted at least three weeks in advance. This will help managers plan (4)______ and ensure adequate staffing levels.\n\nPlease review the full updated policy document, which is available on the company intranet. If you have any questions, do not (5)______ to contact the HR department.\n\nBest regards,\nSarah Mitchell\nHR Director",
+      "sentence": "Question for blank (3): ______, any days beyond five will expire at the end of the fiscal year.",
+      "choices": ["A) Therefore", "B) However", "C) Moreover", "D) Otherwise"],
+      "correctIndex": 1,
+      "explanation": "前文では「最大5日の繰越が可能」と述べ、後文では「5日を超える分は失効する」と制限を加えています。逆接の「However」が適切です。",
+      "category": "接続詞"
+    },
+    {
+      "id": 54,
+      "part": "Part 6",
+      "difficulty": "medium",
+      "passage": "To: All Staff\nFrom: Human Resources Department\nSubject: Updated Leave Policy\n\nDear Colleagues,\n\nWe are writing to inform you of important changes to the company's leave policy, effective May 1st. After careful (1)______ with department heads and employee representatives, the following updates have been approved.\n\nFirst, the annual paid leave allowance will increase from 15 to 18 days for employees who have completed at least two years of (2)______. New employees will continue to receive 15 days.\n\nSecond, employees may now carry over up to five unused leave days to the following year. (3)______, any days beyond five will expire at the end of the fiscal year.\n\nThird, requests for extended leave of more than five consecutive days must be submitted at least three weeks in advance. This will help managers plan (4)______ and ensure adequate staffing levels.\n\nPlease review the full updated policy document, which is available on the company intranet. If you have any questions, do not (5)______ to contact the HR department.\n\nBest regards,\nSarah Mitchell\nHR Director",
+      "sentence": "Question for blank (4): This will help managers plan ______ and ensure adequate staffing levels.",
+      "choices": ["A) according", "B) accordingly", "C) accordance", "D) accord"],
+      "correctIndex": 1,
+      "explanation": "動詞「plan」を修飾する副詞が必要です。「accordingly（それに応じて）」が正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 55,
+      "part": "Part 6",
+      "difficulty": "easy",
+      "passage": "To: All Staff\nFrom: Human Resources Department\nSubject: Updated Leave Policy\n\nDear Colleagues,\n\nWe are writing to inform you of important changes to the company's leave policy, effective May 1st. After careful (1)______ with department heads and employee representatives, the following updates have been approved.\n\nFirst, the annual paid leave allowance will increase from 15 to 18 days for employees who have completed at least two years of (2)______. New employees will continue to receive 15 days.\n\nSecond, employees may now carry over up to five unused leave days to the following year. (3)______, any days beyond five will expire at the end of the fiscal year.\n\nThird, requests for extended leave of more than five consecutive days must be submitted at least three weeks in advance. This will help managers plan (4)______ and ensure adequate staffing levels.\n\nPlease review the full updated policy document, which is available on the company intranet. If you have any questions, do not (5)______ to contact the HR department.\n\nBest regards,\nSarah Mitchell\nHR Director",
+      "sentence": "Question for blank (5): If you have any questions, do not ______ to contact the HR department.",
+      "choices": ["A) hesitate", "B) prevent", "C) avoid", "D) delay"],
+      "correctIndex": 0,
+      "explanation": "「do not hesitate to ～（遠慮なく～してください）」はビジネスメールでよく使われる丁寧な定型表現です。",
+      "category": "語彙"
+    },
+    {
+      "id": 56,
+      "part": "Part 6",
+      "difficulty": "medium",
+      "passage": "NOTICE: Office Relocation\n\nGreenfield Technologies is pleased to announce that our headquarters will be moving to a new location at 500 Harbor Drive, Suite 300, effective June 15th.\n\nThe new office space is (1)______ larger than our current facility, providing room for our growing team. It features modern meeting rooms, an employee lounge, and improved parking facilities.\n\nDuring the transition period from June 10th to June 14th, some services may be (2)______ disrupted. We ask for your patience during this time. All client meetings scheduled during this period will be conducted (3)______.\n\nEmployees are requested to pack their personal belongings and label all boxes by June 8th. The moving company will handle all furniture and (4)______.\n\n(5)______ information about the new office, including directions and public transportation options, will be distributed next week.\n\nThank you for your cooperation.\nFacilities Management Team",
+      "sentence": "Question for blank (1): The new office space is ______ larger than our current facility.",
+      "choices": ["A) significantly", "B) significant", "C) significance", "D) signified"],
+      "correctIndex": 0,
+      "explanation": "比較級「larger」を修飾するには副詞が必要です。「significantly（大幅に）」が正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 57,
+      "part": "Part 6",
+      "difficulty": "easy",
+      "passage": "NOTICE: Office Relocation\n\nGreenfield Technologies is pleased to announce that our headquarters will be moving to a new location at 500 Harbor Drive, Suite 300, effective June 15th.\n\nThe new office space is (1)______ larger than our current facility, providing room for our growing team. It features modern meeting rooms, an employee lounge, and improved parking facilities.\n\nDuring the transition period from June 10th to June 14th, some services may be (2)______ disrupted. We ask for your patience during this time. All client meetings scheduled during this period will be conducted (3)______.\n\nEmployees are requested to pack their personal belongings and label all boxes by June 8th. The moving company will handle all furniture and (4)______.\n\n(5)______ information about the new office, including directions and public transportation options, will be distributed next week.\n\nThank you for your cooperation.\nFacilities Management Team",
+      "sentence": "Question for blank (2): ...some services may be ______ disrupted.",
+      "choices": ["A) temporarily", "B) permanently", "C) frequently", "D) gradually"],
+      "correctIndex": 0,
+      "explanation": "移転期間中の一時的な混乱を述べているため、「temporarily（一時的に）」が正解です。",
+      "category": "語彙"
+    },
+    {
+      "id": 58,
+      "part": "Part 6",
+      "difficulty": "medium",
+      "passage": "NOTICE: Office Relocation\n\nGreenfield Technologies is pleased to announce that our headquarters will be moving to a new location at 500 Harbor Drive, Suite 300, effective June 15th.\n\nThe new office space is (1)______ larger than our current facility, providing room for our growing team. It features modern meeting rooms, an employee lounge, and improved parking facilities.\n\nDuring the transition period from June 10th to June 14th, some services may be (2)______ disrupted. We ask for your patience during this time. All client meetings scheduled during this period will be conducted (3)______.\n\nEmployees are requested to pack their personal belongings and label all boxes by June 8th. The moving company will handle all furniture and (4)______.\n\n(5)______ information about the new office, including directions and public transportation options, will be distributed next week.\n\nThank you for your cooperation.\nFacilities Management Team",
+      "sentence": "Question for blank (3): All client meetings scheduled during this period will be conducted ______.",
+      "choices": ["A) remotely", "B) recently", "C) repeatedly", "D) relatively"],
+      "correctIndex": 0,
+      "explanation": "オフィス移転中は対面会議ができないため、「remotely（リモートで）」が文脈に合います。",
+      "category": "語彙"
+    },
+    {
+      "id": 59,
+      "part": "Part 6",
+      "difficulty": "hard",
+      "passage": "NOTICE: Office Relocation\n\nGreenfield Technologies is pleased to announce that our headquarters will be moving to a new location at 500 Harbor Drive, Suite 300, effective June 15th.\n\nThe new office space is (1)______ larger than our current facility, providing room for our growing team. It features modern meeting rooms, an employee lounge, and improved parking facilities.\n\nDuring the transition period from June 10th to June 14th, some services may be (2)______ disrupted. We ask for your patience during this time. All client meetings scheduled during this period will be conducted (3)______.\n\nEmployees are requested to pack their personal belongings and label all boxes by June 8th. The moving company will handle all furniture and (4)______.\n\n(5)______ information about the new office, including directions and public transportation options, will be distributed next week.\n\nThank you for your cooperation.\nFacilities Management Team",
+      "sentence": "Question for blank (4): The moving company will handle all furniture and ______.",
+      "choices": ["A) equipment", "B) equipping", "C) equipped", "D) equip"],
+      "correctIndex": 0,
+      "explanation": "接続詞「and」で「furniture」と並列される名詞が必要です。「equipment（設備・備品）」が正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 60,
+      "part": "Part 6",
+      "difficulty": "medium",
+      "passage": "NOTICE: Office Relocation\n\nGreenfield Technologies is pleased to announce that our headquarters will be moving to a new location at 500 Harbor Drive, Suite 300, effective June 15th.\n\nThe new office space is (1)______ larger than our current facility, providing room for our growing team. It features modern meeting rooms, an employee lounge, and improved parking facilities.\n\nDuring the transition period from June 10th to June 14th, some services may be (2)______ disrupted. We ask for your patience during this time. All client meetings scheduled during this period will be conducted (3)______.\n\nEmployees are requested to pack their personal belongings and label all boxes by June 8th. The moving company will handle all furniture and (4)______.\n\n(5)______ information about the new office, including directions and public transportation options, will be distributed next week.\n\nThank you for your cooperation.\nFacilities Management Team",
+      "sentence": "Question for blank (5): ______ information about the new office will be distributed next week.",
+      "choices": ["A) Addition", "B) Additional", "C) Additionally", "D) Added"],
+      "correctIndex": 1,
+      "explanation": "名詞「information」を修飾するには形容詞が必要です。「Additional（追加の）」が正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 61,
+      "part": "Part 6",
+      "difficulty": "hard",
+      "passage": "Dear Mr. Nakamura,\n\nThank you for your recent inquiry regarding our corporate event planning services. We would be delighted to assist you with your company's annual gala dinner.\n\nBased on the details you provided, I have prepared a preliminary proposal for your (1)______. The event would be held at the Grand Ballroom of the Riverside Hotel, which can (2)______ up to 300 guests.\n\nOur standard corporate package includes a three-course dinner, a dedicated event coordinator, audiovisual equipment, and floral arrangements. (3)______ services such as live entertainment, photography, and custom decorations are available at an additional cost.\n\nI would like to schedule a meeting to discuss your specific requirements in greater (4)______. Please let me know your availability during the week of March 10th.\n\nI look forward to the (5)______ of working with you on this event.\n\nWarm regards,\nElena Vasquez\nSenior Event Planner",
+      "sentence": "Question for blank (1): I have prepared a preliminary proposal for your ______.",
+      "choices": ["A) review", "B) reviewing", "C) reviewed", "D) reviewer"],
+      "correctIndex": 0,
+      "explanation": "「for your review（ご確認用に）」はビジネスメールの定型表現です。所有格「your」の後に名詞「review」が続きます。",
+      "category": "語彙"
+    },
+    {
+      "id": 62,
+      "part": "Part 6",
+      "difficulty": "easy",
+      "passage": "Dear Mr. Nakamura,\n\nThank you for your recent inquiry regarding our corporate event planning services. We would be delighted to assist you with your company's annual gala dinner.\n\nBased on the details you provided, I have prepared a preliminary proposal for your (1)______. The event would be held at the Grand Ballroom of the Riverside Hotel, which can (2)______ up to 300 guests.\n\nOur standard corporate package includes a three-course dinner, a dedicated event coordinator, audiovisual equipment, and floral arrangements. (3)______ services such as live entertainment, photography, and custom decorations are available at an additional cost.\n\nI would like to schedule a meeting to discuss your specific requirements in greater (4)______. Please let me know your availability during the week of March 10th.\n\nI look forward to the (5)______ of working with you on this event.\n\nWarm regards,\nElena Vasquez\nSenior Event Planner",
+      "sentence": "Question for blank (2): ...which can ______ up to 300 guests.",
+      "choices": ["A) accommodate", "B) accumulate", "C) accomplish", "D) accompany"],
+      "correctIndex": 0,
+      "explanation": "「accommodate（収容する）」が正解です。会場が最大300名を収容できるという意味です。",
+      "category": "語彙"
+    },
+    {
+      "id": 63,
+      "part": "Part 6",
+      "difficulty": "medium",
+      "passage": "Dear Mr. Nakamura,\n\nThank you for your recent inquiry regarding our corporate event planning services. We would be delighted to assist you with your company's annual gala dinner.\n\nBased on the details you provided, I have prepared a preliminary proposal for your (1)______. The event would be held at the Grand Ballroom of the Riverside Hotel, which can (2)______ up to 300 guests.\n\nOur standard corporate package includes a three-course dinner, a dedicated event coordinator, audiovisual equipment, and floral arrangements. (3)______ services such as live entertainment, photography, and custom decorations are available at an additional cost.\n\nI would like to schedule a meeting to discuss your specific requirements in greater (4)______. Please let me know your availability during the week of March 10th.\n\nI look forward to the (5)______ of working with you on this event.\n\nWarm regards,\nElena Vasquez\nSenior Event Planner",
+      "sentence": "Question for blank (3): ______ services such as live entertainment, photography, and custom decorations are available at an additional cost.",
+      "choices": ["A) Option", "B) Optional", "C) Optionally", "D) Opted"],
+      "correctIndex": 1,
+      "explanation": "名詞「services」を修飾する形容詞が必要です。「Optional（オプションの）」が正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 64,
+      "part": "Part 6",
+      "difficulty": "medium",
+      "passage": "Dear Mr. Nakamura,\n\nThank you for your recent inquiry regarding our corporate event planning services. We would be delighted to assist you with your company's annual gala dinner.\n\nBased on the details you provided, I have prepared a preliminary proposal for your (1)______. The event would be held at the Grand Ballroom of the Riverside Hotel, which can (2)______ up to 300 guests.\n\nOur standard corporate package includes a three-course dinner, a dedicated event coordinator, audiovisual equipment, and floral arrangements. (3)______ services such as live entertainment, photography, and custom decorations are available at an additional cost.\n\nI would like to schedule a meeting to discuss your specific requirements in greater (4)______. Please let me know your availability during the week of March 10th.\n\nI look forward to the (5)______ of working with you on this event.\n\nWarm regards,\nElena Vasquez\nSenior Event Planner",
+      "sentence": "Question for blank (4): ...to discuss your specific requirements in greater ______.",
+      "choices": ["A) detail", "B) detailed", "C) details", "D) detailing"],
+      "correctIndex": 0,
+      "explanation": "「in greater detail（より詳しく）」は定型表現です。不可算名詞として「detail」が正解です。",
+      "category": "語彙"
+    },
+    {
+      "id": 65,
+      "part": "Part 6",
+      "difficulty": "hard",
+      "passage": "Dear Mr. Nakamura,\n\nThank you for your recent inquiry regarding our corporate event planning services. We would be delighted to assist you with your company's annual gala dinner.\n\nBased on the details you provided, I have prepared a preliminary proposal for your (1)______. The event would be held at the Grand Ballroom of the Riverside Hotel, which can (2)______ up to 300 guests.\n\nOur standard corporate package includes a three-course dinner, a dedicated event coordinator, audiovisual equipment, and floral arrangements. (3)______ services such as live entertainment, photography, and custom decorations are available at an additional cost.\n\nI would like to schedule a meeting to discuss your specific requirements in greater (4)______. Please let me know your availability during the week of March 10th.\n\nI look forward to the (5)______ of working with you on this event.\n\nWarm regards,\nElena Vasquez\nSenior Event Planner",
+      "sentence": "Question for blank (5): I look forward to the ______ of working with you on this event.",
+      "choices": ["A) opportunity", "B) possibility", "C) ability", "D) probability"],
+      "correctIndex": 0,
+      "explanation": "「the opportunity of ～ing（～する機会）」が最も適切です。ビジネスメールで協力の機会を楽しみにしているという表現です。",
+      "category": "語彙"
+    },
+    {
+      "id": 66,
+      "part": "Part 6",
+      "difficulty": "hard",
+      "passage": "MEMO\nTo: Regional Sales Managers\nFrom: VP of Sales, David Chen\nDate: September 3\nRe: Q4 Sales Strategy\n\nAs we approach the final quarter of the fiscal year, I want to outline our (1)______ for achieving our annual revenue goals.\n\nCurrently, we are 12% below our projected targets. (2)______, I am confident that with focused effort, we can close the gap. The holiday season traditionally accounts for 35% of our annual sales, and this year we have several advantages.\n\nFirst, our new product line has received (3)______ positive reviews from industry analysts. Second, our expanded online platform will allow us to reach customers more effectively than in previous years.\n\nI am asking each regional manager to submit a detailed action plan by September 15th. The plan should include specific targets, (4)______ strategies, and resource requirements.\n\nA mandatory strategy meeting will be held on September 20th to (5)______ all regional plans and finalize our Q4 approach.\n\nLet's finish the year strong.",
+      "sentence": "Question for blank (1): I want to outline our ______ for achieving our annual revenue goals.",
+      "choices": ["A) strategic", "B) strategize", "C) strategy", "D) strategically"],
+      "correctIndex": 2,
+      "explanation": "所有格「our」の後には名詞が必要です。「strategy（戦略）」が名詞形で正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 67,
+      "part": "Part 6",
+      "difficulty": "medium",
+      "passage": "MEMO\nTo: Regional Sales Managers\nFrom: VP of Sales, David Chen\nDate: September 3\nRe: Q4 Sales Strategy\n\nAs we approach the final quarter of the fiscal year, I want to outline our (1)______ for achieving our annual revenue goals.\n\nCurrently, we are 12% below our projected targets. (2)______, I am confident that with focused effort, we can close the gap. The holiday season traditionally accounts for 35% of our annual sales, and this year we have several advantages.\n\nFirst, our new product line has received (3)______ positive reviews from industry analysts. Second, our expanded online platform will allow us to reach customers more effectively than in previous years.\n\nI am asking each regional manager to submit a detailed action plan by September 15th. The plan should include specific targets, (4)______ strategies, and resource requirements.\n\nA mandatory strategy meeting will be held on September 20th to (5)______ all regional plans and finalize our Q4 approach.\n\nLet's finish the year strong.",
+      "sentence": "Question for blank (2): Currently, we are 12% below our projected targets. ______, I am confident that with focused effort, we can close the gap.",
+      "choices": ["A) Therefore", "B) Furthermore", "C) Nevertheless", "D) Meanwhile"],
+      "correctIndex": 2,
+      "explanation": "前文では目標を下回っていると述べ、後文では自信を示しています。逆接の「Nevertheless（それにもかかわらず）」が適切です。",
+      "category": "接続詞"
+    },
+    {
+      "id": 68,
+      "part": "Part 6",
+      "difficulty": "easy",
+      "passage": "MEMO\nTo: Regional Sales Managers\nFrom: VP of Sales, David Chen\nDate: September 3\nRe: Q4 Sales Strategy\n\nAs we approach the final quarter of the fiscal year, I want to outline our (1)______ for achieving our annual revenue goals.\n\nCurrently, we are 12% below our projected targets. (2)______, I am confident that with focused effort, we can close the gap. The holiday season traditionally accounts for 35% of our annual sales, and this year we have several advantages.\n\nFirst, our new product line has received (3)______ positive reviews from industry analysts. Second, our expanded online platform will allow us to reach customers more effectively than in previous years.\n\nI am asking each regional manager to submit a detailed action plan by September 15th. The plan should include specific targets, (4)______ strategies, and resource requirements.\n\nA mandatory strategy meeting will be held on September 20th to (5)______ all regional plans and finalize our Q4 approach.\n\nLet's finish the year strong.",
+      "sentence": "Question for blank (3): ...our new product line has received ______ positive reviews from industry analysts.",
+      "choices": ["A) overwhelm", "B) overwhelming", "C) overwhelmingly", "D) overwhelmed"],
+      "correctIndex": 2,
+      "explanation": "形容詞「positive」を修飾するには副詞が必要です。「overwhelmingly（圧倒的に）」が正解です。",
+      "category": "品詞"
+    },
+    {
+      "id": 69,
+      "part": "Part 6",
+      "difficulty": "hard",
+      "passage": "MEMO\nTo: Regional Sales Managers\nFrom: VP of Sales, David Chen\nDate: September 3\nRe: Q4 Sales Strategy\n\nAs we approach the final quarter of the fiscal year, I want to outline our (1)______ for achieving our annual revenue goals.\n\nCurrently, we are 12% below our projected targets. (2)______, I am confident that with focused effort, we can close the gap. The holiday season traditionally accounts for 35% of our annual sales, and this year we have several advantages.\n\nFirst, our new product line has received (3)______ positive reviews from industry analysts. Second, our expanded online platform will allow us to reach customers more effectively than in previous years.\n\nI am asking each regional manager to submit a detailed action plan by September 15th. The plan should include specific targets, (4)______ strategies, and resource requirements.\n\nA mandatory strategy meeting will be held on September 20th to (5)______ all regional plans and finalize our Q4 approach.\n\nLet's finish the year strong.",
+      "sentence": "Question for blank (4): The plan should include specific targets, ______ strategies, and resource requirements.",
+      "choices": ["A) market", "B) marketed", "C) marketing", "D) marketer"],
+      "correctIndex": 2,
+      "explanation": "名詞「strategies」を修飾する形容詞的用法として「marketing（マーケティングの）」が正解です。動名詞が形容詞的に使われています。",
+      "category": "品詞"
+    },
+    {
+      "id": 70,
+      "part": "Part 6",
+      "difficulty": "medium",
+      "passage": "MEMO\nTo: Regional Sales Managers\nFrom: VP of Sales, David Chen\nDate: September 3\nRe: Q4 Sales Strategy\n\nAs we approach the final quarter of the fiscal year, I want to outline our (1)______ for achieving our annual revenue goals.\n\nCurrently, we are 12% below our projected targets. (2)______, I am confident that with focused effort, we can close the gap. The holiday season traditionally accounts for 35% of our annual sales, and this year we have several advantages.\n\nFirst, our new product line has received (3)______ positive reviews from industry analysts. Second, our expanded online platform will allow us to reach customers more effectively than in previous years.\n\nI am asking each regional manager to submit a detailed action plan by September 15th. The plan should include specific targets, (4)______ strategies, and resource requirements.\n\nA mandatory strategy meeting will be held on September 20th to (5)______ all regional plans and finalize our Q4 approach.\n\nLet's finish the year strong.",
+      "sentence": "Question for blank (5): A mandatory strategy meeting will be held on September 20th to ______ all regional plans.",
+      "choices": ["A) review", "B) revise", "C) reveal", "D) reverse"],
+      "correctIndex": 0,
+      "explanation": "会議で各地域の計画を「review（確認・検討する）」が最も適切です。「revise（修正する）」「reveal（明かす）」「reverse（逆転する）」は文脈に合いません。",
+      "category": "語彙"
+    },
+    {
+      "id": 71,
+      "part": "Part 7",
+      "difficulty": "easy",
+      "passage": "Westbrook Business Center\nOffice Space Available\n\nModern office suites available for immediate occupancy at Westbrook Business Center, located in the heart of downtown Portland.\n\nFeatures:\n- Suites ranging from 500 to 2,500 square feet\n- High-speed internet included in all units\n- 24-hour security and building access\n- Underground parking available ($150/month per space)\n- Shared conference room and kitchen facilities\n- On-site fitness center\n\nLease Terms:\n- Minimum 12-month lease\n- Monthly rent: $18-$22 per square foot\n- Security deposit: Two months' rent\n- Utilities included (electricity, water, heating)\n\nFor inquiries, contact Westbrook Property Management at (503) 555-0142 or email leasing@westbrookbc.com.\n\nOpen house: Saturday, March 8th, 10 A.M. - 3 P.M.",
+      "sentence": "What is included in the monthly rent at Westbrook Business Center?",
+      "choices": ["A) Parking spaces", "B) Utilities", "C) Furniture", "D) Cleaning services"],
+      "correctIndex": 1,
+      "explanation": "広告に「Utilities included (electricity, water, heating)」と記載されています。光熱費は家賃に含まれています。駐車場は別途月額$150です。",
+      "category": "読解"
+    },
+    {
+      "id": 72,
+      "part": "Part 7",
+      "difficulty": "easy",
+      "passage": "Westbrook Business Center\nOffice Space Available\n\nModern office suites available for immediate occupancy at Westbrook Business Center, located in the heart of downtown Portland.\n\nFeatures:\n- Suites ranging from 500 to 2,500 square feet\n- High-speed internet included in all units\n- 24-hour security and building access\n- Underground parking available ($150/month per space)\n- Shared conference room and kitchen facilities\n- On-site fitness center\n\nLease Terms:\n- Minimum 12-month lease\n- Monthly rent: $18-$22 per square foot\n- Security deposit: Two months' rent\n- Utilities included (electricity, water, heating)\n\nFor inquiries, contact Westbrook Property Management at (503) 555-0142 or email leasing@westbrookbc.com.\n\nOpen house: Saturday, March 8th, 10 A.M. - 3 P.M.",
+      "sentence": "What is the minimum lease period?",
+      "choices": ["A) 6 months", "B) 12 months", "C) 18 months", "D) 24 months"],
+      "correctIndex": 1,
+      "explanation": "「Minimum 12-month lease」と記載されています。最低リース期間は12ヶ月です。",
+      "category": "読解"
+    },
+    {
+      "id": 73,
+      "part": "Part 7",
+      "difficulty": "medium",
+      "passage": "Westbrook Business Center\nOffice Space Available\n\nModern office suites available for immediate occupancy at Westbrook Business Center, located in the heart of downtown Portland.\n\nFeatures:\n- Suites ranging from 500 to 2,500 square feet\n- High-speed internet included in all units\n- 24-hour security and building access\n- Underground parking available ($150/month per space)\n- Shared conference room and kitchen facilities\n- On-site fitness center\n\nLease Terms:\n- Minimum 12-month lease\n- Monthly rent: $18-$22 per square foot\n- Security deposit: Two months' rent\n- Utilities included (electricity, water, heating)\n\nFor inquiries, contact Westbrook Property Management at (503) 555-0142 or email leasing@westbrookbc.com.\n\nOpen house: Saturday, March 8th, 10 A.M. - 3 P.M.",
+      "sentence": "What is the maximum possible monthly rent for the largest suite?",
+      "choices": ["A) $45,000", "B) $50,000", "C) $55,000", "D) $60,000"],
+      "correctIndex": 2,
+      "explanation": "最大のスイートは2,500平方フィートで、最高賃料は1平方フィートあたり$22です。2,500 × $22 = $55,000が最大月額賃料です。",
+      "category": "読解"
+    },
+    {
+      "id": 74,
+      "part": "Part 7",
+      "difficulty": "medium",
+      "passage": "Westbrook Business Center\nOffice Space Available\n\nModern office suites available for immediate occupancy at Westbrook Business Center, located in the heart of downtown Portland.\n\nFeatures:\n- Suites ranging from 500 to 2,500 square feet\n- High-speed internet included in all units\n- 24-hour security and building access\n- Underground parking available ($150/month per space)\n- Shared conference room and kitchen facilities\n- On-site fitness center\n\nLease Terms:\n- Minimum 12-month lease\n- Monthly rent: $18-$22 per square foot\n- Security deposit: Two months' rent\n- Utilities included (electricity, water, heating)\n\nFor inquiries, contact Westbrook Property Management at (503) 555-0142 or email leasing@westbrookbc.com.\n\nOpen house: Saturday, March 8th, 10 A.M. - 3 P.M.",
+      "sentence": "What can visitors do on March 8th?",
+      "choices": ["A) Sign a lease agreement", "B) Meet with current tenants", "C) Tour the available spaces", "D) Attend a business seminar"],
+      "correctIndex": 2,
+      "explanation": "3月8日土曜日にオープンハウスが開催されます。オープンハウスは物件を見学できるイベントです。",
+      "category": "読解"
+    },
+    {
+      "id": 75,
+      "part": "Part 7",
+      "difficulty": "hard",
+      "passage": "Westbrook Business Center\nOffice Space Available\n\nModern office suites available for immediate occupancy at Westbrook Business Center, located in the heart of downtown Portland.\n\nFeatures:\n- Suites ranging from 500 to 2,500 square feet\n- High-speed internet included in all units\n- 24-hour security and building access\n- Underground parking available ($150/month per space)\n- Shared conference room and kitchen facilities\n- On-site fitness center\n\nLease Terms:\n- Minimum 12-month lease\n- Monthly rent: $18-$22 per square foot\n- Security deposit: Two months' rent\n- Utilities included (electricity, water, heating)\n\nFor inquiries, contact Westbrook Property Management at (503) 555-0142 or email leasing@westbrookbc.com.\n\nOpen house: Saturday, March 8th, 10 A.M. - 3 P.M.",
+      "sentence": "What is NOT mentioned as a feature of Westbrook Business Center?",
+      "choices": ["A) Exercise facilities", "B) Internet connectivity", "C) A reception desk service", "D) Meeting room access"],
+      "correctIndex": 2,
+      "explanation": "フィットネスセンター、高速インターネット、共有会議室は記載されていますが、受付デスクサービスについては言及されていません。",
+      "category": "読解"
+    },
+    {
+      "id": 76,
+      "part": "Part 7",
+      "difficulty": "medium",
+      "passage": "From: Julia Sanders <j.sanders@brightoncorp.com>\nTo: Mark Thompson <m.thompson@brightoncorp.com>\nDate: October 14\nSubject: Client Presentation - Friday\n\nHi Mark,\n\nI wanted to touch base about the client presentation scheduled for this Friday at 2:00 P.M. I've completed the first draft of the slide deck and would appreciate your feedback before I finalize it.\n\nI've incorporated the latest sales data from Q3, as well as the customer satisfaction survey results that were released last week. However, I'm still waiting for the updated budget projections from the finance department. I've already followed up with Tom in finance, and he said he would have them to us by Wednesday afternoon at the latest.\n\nAlso, I think we should prepare a handout summarizing the key points for the client. Would you be able to put that together? I know you're great at condensing information into clear, concise documents.\n\nLet me know if you'd like to meet tomorrow morning to go over the presentation together. I'm free between 9:00 and 11:00 A.M.\n\nThanks,\nJulia",
+      "sentence": "What is the purpose of this email?",
+      "choices": ["A) To reschedule a meeting", "B) To coordinate on a presentation", "C) To share quarterly financial results", "D) To request a budget increase"],
+      "correctIndex": 1,
+      "explanation": "このメールは金曜日のクライアントプレゼンテーションの準備について調整するためのものです。フィードバックの依頼や配布資料の作成依頼をしています。",
+      "category": "読解"
+    },
+    {
+      "id": 77,
+      "part": "Part 7",
+      "difficulty": "easy",
+      "passage": "From: Julia Sanders <j.sanders@brightoncorp.com>\nTo: Mark Thompson <m.thompson@brightoncorp.com>\nDate: October 14\nSubject: Client Presentation - Friday\n\nHi Mark,\n\nI wanted to touch base about the client presentation scheduled for this Friday at 2:00 P.M. I've completed the first draft of the slide deck and would appreciate your feedback before I finalize it.\n\nI've incorporated the latest sales data from Q3, as well as the customer satisfaction survey results that were released last week. However, I'm still waiting for the updated budget projections from the finance department. I've already followed up with Tom in finance, and he said he would have them to us by Wednesday afternoon at the latest.\n\nAlso, I think we should prepare a handout summarizing the key points for the client. Would you be able to put that together? I know you're great at condensing information into clear, concise documents.\n\nLet me know if you'd like to meet tomorrow morning to go over the presentation together. I'm free between 9:00 and 11:00 A.M.\n\nThanks,\nJulia",
+      "sentence": "When is the client presentation scheduled?",
+      "choices": ["A) Wednesday afternoon", "B) Thursday morning", "C) Friday at 2:00 P.M.", "D) Friday at 9:00 A.M."],
+      "correctIndex": 2,
+      "explanation": "「the client presentation scheduled for this Friday at 2:00 P.M.」と記載されています。金曜日の午後2時です。",
+      "category": "読解"
+    },
+    {
+      "id": 78,
+      "part": "Part 7",
+      "difficulty": "medium",
+      "passage": "From: Julia Sanders <j.sanders@brightoncorp.com>\nTo: Mark Thompson <m.thompson@brightoncorp.com>\nDate: October 14\nSubject: Client Presentation - Friday\n\nHi Mark,\n\nI wanted to touch base about the client presentation scheduled for this Friday at 2:00 P.M. I've completed the first draft of the slide deck and would appreciate your feedback before I finalize it.\n\nI've incorporated the latest sales data from Q3, as well as the customer satisfaction survey results that were released last week. However, I'm still waiting for the updated budget projections from the finance department. I've already followed up with Tom in finance, and he said he would have them to us by Wednesday afternoon at the latest.\n\nAlso, I think we should prepare a handout summarizing the key points for the client. Would you be able to put that together? I know you're great at condensing information into clear, concise documents.\n\nLet me know if you'd like to meet tomorrow morning to go over the presentation together. I'm free between 9:00 and 11:00 A.M.\n\nThanks,\nJulia",
+      "sentence": "What does Julia ask Mark to do?",
+      "choices": ["A) Contact the finance department", "B) Prepare a summary handout", "C) Complete the slide deck", "D) Conduct the customer survey"],
+      "correctIndex": 1,
+      "explanation": "Juliaは「prepare a handout summarizing the key points」をMarkに依頼しています。要点をまとめた配布資料の作成です。",
+      "category": "読解"
+    },
+    {
+      "id": 79,
+      "part": "Part 7",
+      "difficulty": "hard",
+      "passage": "From: Julia Sanders <j.sanders@brightoncorp.com>\nTo: Mark Thompson <m.thompson@brightoncorp.com>\nDate: October 14\nSubject: Client Presentation - Friday\n\nHi Mark,\n\nI wanted to touch base about the client presentation scheduled for this Friday at 2:00 P.M. I've completed the first draft of the slide deck and would appreciate your feedback before I finalize it.\n\nI've incorporated the latest sales data from Q3, as well as the customer satisfaction survey results that were released last week. However, I'm still waiting for the updated budget projections from the finance department. I've already followed up with Tom in finance, and he said he would have them to us by Wednesday afternoon at the latest.\n\nAlso, I think we should prepare a handout summarizing the key points for the client. Would you be able to put that together? I know you're great at condensing information into clear, concise documents.\n\nLet me know if you'd like to meet tomorrow morning to go over the presentation together. I'm free between 9:00 and 11:00 A.M.\n\nThanks,\nJulia",
+      "sentence": "What information is still missing from the presentation?",
+      "choices": ["A) Q3 sales data", "B) Customer satisfaction results", "C) Updated budget projections", "D) Client contact information"],
+      "correctIndex": 2,
+      "explanation": "「I'm still waiting for the updated budget projections from the finance department」と述べています。財務部からの更新された予算予測がまだ届いていません。",
+      "category": "読解"
+    },
+    {
+      "id": 80,
+      "part": "Part 7",
+      "difficulty": "hard",
+      "passage": "From: Julia Sanders <j.sanders@brightoncorp.com>\nTo: Mark Thompson <m.thompson@brightoncorp.com>\nDate: October 14\nSubject: Client Presentation - Friday\n\nHi Mark,\n\nI wanted to touch base about the client presentation scheduled for this Friday at 2:00 P.M. I've completed the first draft of the slide deck and would appreciate your feedback before I finalize it.\n\nI've incorporated the latest sales data from Q3, as well as the customer satisfaction survey results that were released last week. However, I'm still waiting for the updated budget projections from the finance department. I've already followed up with Tom in finance, and he said he would have them to us by Wednesday afternoon at the latest.\n\nAlso, I think we should prepare a handout summarizing the key points for the client. Would you be able to put that together? I know you're great at condensing information into clear, concise documents.\n\nLet me know if you'd like to meet tomorrow morning to go over the presentation together. I'm free between 9:00 and 11:00 A.M.\n\nThanks,\nJulia",
+      "sentence": "What day was this email most likely sent?",
+      "choices": ["A) Monday", "B) Tuesday", "C) Wednesday", "D) Thursday"],
+      "correctIndex": 1,
+      "explanation": "メールは10月14日に送信され、「tomorrow morning」に会議を提案し、Tomが「Wednesday afternoon」までにデータを送ると述べています。翌日が水曜なので、メールは火曜日に送られたと推測できます。",
+      "category": "読解"
+    },
+    {
+      "id": 81,
+      "part": "Part 7",
+      "difficulty": "medium",
+      "passage": "Pinnacle Training Institute\nProfessional Development Courses - Spring Schedule\n\nProject Management Fundamentals\nInstructor: Dr. Robert Hayes\nDates: April 7 - May 12 (6 sessions, Mondays)\nTime: 6:30 P.M. - 9:00 P.M.\nFee: $450 (early bird: $380 if registered before March 15)\nThis course covers the basics of project planning, scheduling, budgeting, and risk management. Ideal for new project managers or those seeking PMP certification preparation.\n\nAdvanced Business Communication\nInstructor: Professor Lisa Chen\nDates: April 9 - May 28 (8 sessions, Wednesdays)\nTime: 7:00 P.M. - 9:00 P.M.\nFee: $520 (early bird: $440 if registered before March 15)\nDesigned for mid-level professionals, this course focuses on persuasive writing, executive presentations, and cross-cultural communication strategies.\n\nFinancial Analysis for Non-Financial Managers\nInstructor: Michael Park, CFA\nDates: April 12 - May 17 (6 sessions, Saturdays)\nTime: 10:00 A.M. - 12:30 P.M.\nFee: $480 (early bird: $400 if registered before March 15)\nLearn to read financial statements, analyze key performance indicators, and make data-driven business decisions.\n\nAll courses include materials and a certificate of completion.\nRegistration: www.pinnacletraining.com or call (212) 555-0198\nLocation: Pinnacle Training Center, 250 Madison Avenue, 12th Floor",
+      "sentence": "How much would a person save by registering early for the Advanced Business Communication course?",
+      "choices": ["A) $60", "B) $70", "C) $80", "D) $90"],
+      "correctIndex": 2,
+      "explanation": "通常料金$520 - 早割料金$440 = $80の割引です。3月15日までに登録すると$80節約できます。",
+      "category": "読解"
+    },
+    {
+      "id": 82,
+      "part": "Part 7",
+      "difficulty": "easy",
+      "passage": "Pinnacle Training Institute\nProfessional Development Courses - Spring Schedule\n\nProject Management Fundamentals\nInstructor: Dr. Robert Hayes\nDates: April 7 - May 12 (6 sessions, Mondays)\nTime: 6:30 P.M. - 9:00 P.M.\nFee: $450 (early bird: $380 if registered before March 15)\nThis course covers the basics of project planning, scheduling, budgeting, and risk management. Ideal for new project managers or those seeking PMP certification preparation.\n\nAdvanced Business Communication\nInstructor: Professor Lisa Chen\nDates: April 9 - May 28 (8 sessions, Wednesdays)\nTime: 7:00 P.M. - 9:00 P.M.\nFee: $520 (early bird: $440 if registered before March 15)\nDesigned for mid-level professionals, this course focuses on persuasive writing, executive presentations, and cross-cultural communication strategies.\n\nFinancial Analysis for Non-Financial Managers\nInstructor: Michael Park, CFA\nDates: April 12 - May 17 (6 sessions, Saturdays)\nTime: 10:00 A.M. - 12:30 P.M.\nFee: $480 (early bird: $400 if registered before March 15)\nLearn to read financial statements, analyze key performance indicators, and make data-driven business decisions.\n\nAll courses include materials and a certificate of completion.\nRegistration: www.pinnacletraining.com or call (212) 555-0198\nLocation: Pinnacle Training Center, 250 Madison Avenue, 12th Floor",
+      "sentence": "Which course has the most sessions?",
+      "choices": ["A) Project Management Fundamentals", "B) Advanced Business Communication", "C) Financial Analysis for Non-Financial Managers", "D) All courses have the same number"],
+      "correctIndex": 1,
+      "explanation": "Advanced Business Communicationは8セッション、他の2コースは6セッションです。最もセッション数が多いのはAdvanced Business Communicationです。",
+      "category": "読解"
+    },
+    {
+      "id": 83,
+      "part": "Part 7",
+      "difficulty": "medium",
+      "passage": "Pinnacle Training Institute\nProfessional Development Courses - Spring Schedule\n\nProject Management Fundamentals\nInstructor: Dr. Robert Hayes\nDates: April 7 - May 12 (6 sessions, Mondays)\nTime: 6:30 P.M. - 9:00 P.M.\nFee: $450 (early bird: $380 if registered before March 15)\nThis course covers the basics of project planning, scheduling, budgeting, and risk management. Ideal for new project managers or those seeking PMP certification preparation.\n\nAdvanced Business Communication\nInstructor: Professor Lisa Chen\nDates: April 9 - May 28 (8 sessions, Wednesdays)\nTime: 7:00 P.M. - 9:00 P.M.\nFee: $520 (early bird: $440 if registered before March 15)\nDesigned for mid-level professionals, this course focuses on persuasive writing, executive presentations, and cross-cultural communication strategies.\n\nFinancial Analysis for Non-Financial Managers\nInstructor: Michael Park, CFA\nDates: April 12 - May 17 (6 sessions, Saturdays)\nTime: 10:00 A.M. - 12:30 P.M.\nFee: $480 (early bird: $400 if registered before March 15)\nLearn to read financial statements, analyze key performance indicators, and make data-driven business decisions.\n\nAll courses include materials and a certificate of completion.\nRegistration: www.pinnacletraining.com or call (212) 555-0198\nLocation: Pinnacle Training Center, 250 Madison Avenue, 12th Floor",
+      "sentence": "Which course would be most suitable for someone who wants to understand company financial reports?",
+      "choices": ["A) Project Management Fundamentals", "B) Advanced Business Communication", "C) Financial Analysis for Non-Financial Managers", "D) None of the listed courses"],
+      "correctIndex": 2,
+      "explanation": "Financial Analysis for Non-Financial Managersは「read financial statements（財務諸表を読む）」ことを学べるコースです。会社の財務報告書を理解したい人に最適です。",
+      "category": "読解"
+    },
+    {
+      "id": 84,
+      "part": "Part 7",
+      "difficulty": "hard",
+      "passage": "Pinnacle Training Institute\nProfessional Development Courses - Spring Schedule\n\nProject Management Fundamentals\nInstructor: Dr. Robert Hayes\nDates: April 7 - May 12 (6 sessions, Mondays)\nTime: 6:30 P.M. - 9:00 P.M.\nFee: $450 (early bird: $380 if registered before March 15)\nThis course covers the basics of project planning, scheduling, budgeting, and risk management. Ideal for new project managers or those seeking PMP certification preparation.\n\nAdvanced Business Communication\nInstructor: Professor Lisa Chen\nDates: April 9 - May 28 (8 sessions, Wednesdays)\nTime: 7:00 P.M. - 9:00 P.M.\nFee: $520 (early bird: $440 if registered before March 15)\nDesigned for mid-level professionals, this course focuses on persuasive writing, executive presentations, and cross-cultural communication strategies.\n\nFinancial Analysis for Non-Financial Managers\nInstructor: Michael Park, CFA\nDates: April 12 - May 17 (6 sessions, Saturdays)\nTime: 10:00 A.M. - 12:30 P.M.\nFee: $480 (early bird: $400 if registered before March 15)\nLearn to read financial statements, analyze key performance indicators, and make data-driven business decisions.\n\nAll courses include materials and a certificate of completion.\nRegistration: www.pinnacletraining.com or call (212) 555-0198\nLocation: Pinnacle Training Center, 250 Madison Avenue, 12th Floor",
+      "sentence": "What is true about all three courses?",
+      "choices": ["A) They are held on weekday evenings", "B) They cost less than $500 at regular price", "C) They provide a certificate upon completion", "D) They are taught by university professors"],
+      "correctIndex": 2,
+      "explanation": "「All courses include materials and a certificate of completion」と記載されています。全コースに修了証が含まれます。Financial Analysisは土曜午前なので(A)は不正確、Communication は$520なので(B)も不正確です。",
+      "category": "読解"
+    },
+    {
+      "id": 85,
+      "part": "Part 7",
+      "difficulty": "hard",
+      "passage": "Pinnacle Training Institute\nProfessional Development Courses - Spring Schedule\n\nProject Management Fundamentals\nInstructor: Dr. Robert Hayes\nDates: April 7 - May 12 (6 sessions, Mondays)\nTime: 6:30 P.M. - 9:00 P.M.\nFee: $450 (early bird: $380 if registered before March 15)\nThis course covers the basics of project planning, scheduling, budgeting, and risk management. Ideal for new project managers or those seeking PMP certification preparation.\n\nAdvanced Business Communication\nInstructor: Professor Lisa Chen\nDates: April 9 - May 28 (8 sessions, Wednesdays)\nTime: 7:00 P.M. - 9:00 P.M.\nFee: $520 (early bird: $440 if registered before March 15)\nDesigned for mid-level professionals, this course focuses on persuasive writing, executive presentations, and cross-cultural communication strategies.\n\nFinancial Analysis for Non-Financial Managers\nInstructor: Michael Park, CFA\nDates: April 12 - May 17 (6 sessions, Saturdays)\nTime: 10:00 A.M. - 12:30 P.M.\nFee: $480 (early bird: $400 if registered before March 15)\nLearn to read financial statements, analyze key performance indicators, and make data-driven business decisions.\n\nAll courses include materials and a certificate of completion.\nRegistration: www.pinnacletraining.com or call (212) 555-0198\nLocation: Pinnacle Training Center, 250 Madison Avenue, 12th Floor",
+      "sentence": "If someone registered for all three courses at regular price, how much would they pay in total?",
+      "choices": ["A) $1,220", "B) $1,350", "C) $1,450", "D) $1,500"],
+      "correctIndex": 2,
+      "explanation": "通常料金: $450 + $520 + $480 = $1,450です。3コースすべてを通常料金で登録すると合計$1,450になります。",
+      "category": "読解"
+    },
+    {
+      "id": 86,
+      "part": "Part 7",
+      "difficulty": "easy",
+      "passage": "Evergreen Hotels & Resorts\nGuest Satisfaction Survey Results - Annual Report\n\nThank you for choosing Evergreen Hotels. Below is a summary of our guest feedback for the past year.\n\nOverall Satisfaction: 4.3 out of 5.0 (up from 4.1 last year)\n\nCategory Ratings:\n- Room Cleanliness: 4.6\n- Staff Friendliness: 4.5\n- Check-in/Check-out Speed: 3.8\n- Restaurant Quality: 4.2\n- Wi-Fi Reliability: 3.5\n- Value for Money: 3.9\n\nKey Findings:\n- 89% of guests said they would recommend Evergreen Hotels to others\n- The most common complaint was slow Wi-Fi in guest rooms\n- Guests praised the newly renovated lobby and breakfast buffet\n- Business travelers rated the conference facilities 4.4 out of 5.0\n\nAction Items:\n- Upgrade Wi-Fi infrastructure across all properties by Q2\n- Add self-service check-in kiosks at three flagship locations\n- Expand breakfast menu options based on guest suggestions",
+      "sentence": "What received the lowest rating from guests?",
+      "choices": ["A) Room Cleanliness", "B) Check-in/Check-out Speed", "C) Wi-Fi Reliability", "D) Value for Money"],
+      "correctIndex": 2,
+      "explanation": "Wi-Fi Reliabilityが3.5で最も低い評価です。最も一般的な苦情も「客室のWi-Fiの遅さ」でした。",
+      "category": "読解"
+    },
+    {
+      "id": 87,
+      "part": "Part 7",
+      "difficulty": "easy",
+      "passage": "Evergreen Hotels & Resorts\nGuest Satisfaction Survey Results - Annual Report\n\nThank you for choosing Evergreen Hotels. Below is a summary of our guest feedback for the past year.\n\nOverall Satisfaction: 4.3 out of 5.0 (up from 4.1 last year)\n\nCategory Ratings:\n- Room Cleanliness: 4.6\n- Staff Friendliness: 4.5\n- Check-in/Check-out Speed: 3.8\n- Restaurant Quality: 4.2\n- Wi-Fi Reliability: 3.5\n- Value for Money: 3.9\n\nKey Findings:\n- 89% of guests said they would recommend Evergreen Hotels to others\n- The most common complaint was slow Wi-Fi in guest rooms\n- Guests praised the newly renovated lobby and breakfast buffet\n- Business travelers rated the conference facilities 4.4 out of 5.0\n\nAction Items:\n- Upgrade Wi-Fi infrastructure across all properties by Q2\n- Add self-service check-in kiosks at three flagship locations\n- Expand breakfast menu options based on guest suggestions",
+      "sentence": "How much did the overall satisfaction score improve from last year?",
+      "choices": ["A) 0.1 points", "B) 0.2 points", "C) 0.3 points", "D) 0.4 points"],
+      "correctIndex": 1,
+      "explanation": "今年のスコアは4.3、昨年は4.1です。4.3 - 4.1 = 0.2ポイントの改善です。",
+      "category": "読解"
+    },
+    {
+      "id": 88,
+      "part": "Part 7",
+      "difficulty": "medium",
+      "passage": "Evergreen Hotels & Resorts\nGuest Satisfaction Survey Results - Annual Report\n\nThank you for choosing Evergreen Hotels. Below is a summary of our guest feedback for the past year.\n\nOverall Satisfaction: 4.3 out of 5.0 (up from 4.1 last year)\n\nCategory Ratings:\n- Room Cleanliness: 4.6\n- Staff Friendliness: 4.5\n- Check-in/Check-out Speed: 3.8\n- Restaurant Quality: 4.2\n- Wi-Fi Reliability: 3.5\n- Value for Money: 3.9\n\nKey Findings:\n- 89% of guests said they would recommend Evergreen Hotels to others\n- The most common complaint was slow Wi-Fi in guest rooms\n- Guests praised the newly renovated lobby and breakfast buffet\n- Business travelers rated the conference facilities 4.4 out of 5.0\n\nAction Items:\n- Upgrade Wi-Fi infrastructure across all properties by Q2\n- Add self-service check-in kiosks at three flagship locations\n- Expand breakfast menu options based on guest suggestions",
+      "sentence": "What action is the hotel planning to address the check-in process?",
+      "choices": ["A) Hiring more front desk staff", "B) Installing self-service kiosks", "C) Offering online check-in", "D) Extending front desk hours"],
+      "correctIndex": 1,
+      "explanation": "Action Itemsに「Add self-service check-in kiosks at three flagship locations」と記載されています。セルフチェックイン端末の設置を計画しています。",
+      "category": "読解"
+    },
+    {
+      "id": 89,
+      "part": "Part 7",
+      "difficulty": "hard",
+      "passage": "Evergreen Hotels & Resorts\nGuest Satisfaction Survey Results - Annual Report\n\nThank you for choosing Evergreen Hotels. Below is a summary of our guest feedback for the past year.\n\nOverall Satisfaction: 4.3 out of 5.0 (up from 4.1 last year)\n\nCategory Ratings:\n- Room Cleanliness: 4.6\n- Staff Friendliness: 4.5\n- Check-in/Check-out Speed: 3.8\n- Restaurant Quality: 4.2\n- Wi-Fi Reliability: 3.5\n- Value for Money: 3.9\n\nKey Findings:\n- 89% of guests said they would recommend Evergreen Hotels to others\n- The most common complaint was slow Wi-Fi in guest rooms\n- Guests praised the newly renovated lobby and breakfast buffet\n- Business travelers rated the conference facilities 4.4 out of 5.0\n\nAction Items:\n- Upgrade Wi-Fi infrastructure across all properties by Q2\n- Add self-service check-in kiosks at three flagship locations\n- Expand breakfast menu options based on guest suggestions",
+      "sentence": "What can be inferred about the hotel's conference facilities?",
+      "choices": ["A) They are rarely used by guests", "B) They received lower ratings than most categories", "C) They are rated higher than the overall satisfaction score", "D) They are only available at flagship locations"],
+      "correctIndex": 2,
+      "explanation": "会議施設の評価は4.4で、全体満足度の4.3よりも高いです。したがって、会議施設は全体満足度より高く評価されていると推測できます。",
+      "category": "読解"
+    },
+    {
+      "id": 90,
+      "part": "Part 7",
+      "difficulty": "medium",
+      "passage": "Evergreen Hotels & Resorts\nGuest Satisfaction Survey Results - Annual Report\n\nThank you for choosing Evergreen Hotels. Below is a summary of our guest feedback for the past year.\n\nOverall Satisfaction: 4.3 out of 5.0 (up from 4.1 last year)\n\nCategory Ratings:\n- Room Cleanliness: 4.6\n- Staff Friendliness: 4.5\n- Check-in/Check-out Speed: 3.8\n- Restaurant Quality: 4.2\n- Wi-Fi Reliability: 3.5\n- Value for Money: 3.9\n\nKey Findings:\n- 89% of guests said they would recommend Evergreen Hotels to others\n- The most common complaint was slow Wi-Fi in guest rooms\n- Guests praised the newly renovated lobby and breakfast buffet\n- Business travelers rated the conference facilities 4.4 out of 5.0\n\nAction Items:\n- Upgrade Wi-Fi infrastructure across all properties by Q2\n- Add self-service check-in kiosks at three flagship locations\n- Expand breakfast menu options based on guest suggestions",
+      "sentence": "What did guests speak positively about?",
+      "choices": ["A) The swimming pool", "B) The room service menu", "C) The renovated lobby", "D) The parking facilities"],
+      "correctIndex": 2,
+      "explanation": "「Guests praised the newly renovated lobby and breakfast buffet」と記載されています。宿泊客は改装されたロビーを高く評価しました。",
+      "category": "読解"
+    },
+    {
+      "id": 91,
+      "part": "Part 7",
+      "difficulty": "medium",
+      "passage": "TechVista Solutions\nPress Release - For Immediate Release\nJanuary 18\n\nTechVista Solutions Announces Strategic Partnership with CloudNet Systems\n\nSAN FRANCISCO - TechVista Solutions, a leading provider of enterprise software, today announced a strategic partnership with CloudNet Systems to deliver integrated cloud computing solutions to mid-size businesses.\n\nUnder the terms of the agreement, TechVista will integrate its flagship project management platform, TaskFlow Pro, with CloudNet's cloud infrastructure services. The combined solution will enable businesses to manage projects, store data, and collaborate in a single unified environment.\n\n\"This partnership represents a significant milestone for both companies,\" said Maria Gonzalez, CEO of TechVista Solutions. \"Our customers have been asking for a more seamless cloud experience, and by joining forces with CloudNet, we can deliver exactly that.\"\n\nThe integrated platform is expected to launch in the third quarter of this year. Existing TaskFlow Pro customers will receive a complimentary three-month trial of the enhanced cloud features.\n\nTechVista Solutions, founded in 2010, serves over 5,000 businesses in 40 countries. CloudNet Systems, established in 2015, specializes in scalable cloud infrastructure for growing businesses.\n\nFor more information, visit www.techvista.com/partnership.",
+      "sentence": "What is the main purpose of this press release?",
+      "choices": ["A) To announce a product recall", "B) To report quarterly earnings", "C) To announce a business partnership", "D) To introduce a new CEO"],
+      "correctIndex": 2,
+      "explanation": "このプレスリリースはTechVista SolutionsとCloudNet Systemsの戦略的パートナーシップを発表するためのものです。",
+      "category": "読解"
+    },
+    {
+      "id": 92,
+      "part": "Part 7",
+      "difficulty": "easy",
+      "passage": "TechVista Solutions\nPress Release - For Immediate Release\nJanuary 18\n\nTechVista Solutions Announces Strategic Partnership with CloudNet Systems\n\nSAN FRANCISCO - TechVista Solutions, a leading provider of enterprise software, today announced a strategic partnership with CloudNet Systems to deliver integrated cloud computing solutions to mid-size businesses.\n\nUnder the terms of the agreement, TechVista will integrate its flagship project management platform, TaskFlow Pro, with CloudNet's cloud infrastructure services. The combined solution will enable businesses to manage projects, store data, and collaborate in a single unified environment.\n\n\"This partnership represents a significant milestone for both companies,\" said Maria Gonzalez, CEO of TechVista Solutions. \"Our customers have been asking for a more seamless cloud experience, and by joining forces with CloudNet, we can deliver exactly that.\"\n\nThe integrated platform is expected to launch in the third quarter of this year. Existing TaskFlow Pro customers will receive a complimentary three-month trial of the enhanced cloud features.\n\nTechVista Solutions, founded in 2010, serves over 5,000 businesses in 40 countries. CloudNet Systems, established in 2015, specializes in scalable cloud infrastructure for growing businesses.\n\nFor more information, visit www.techvista.com/partnership.",
+      "sentence": "When is the integrated platform expected to be available?",
+      "choices": ["A) First quarter", "B) Second quarter", "C) Third quarter", "D) Fourth quarter"],
+      "correctIndex": 2,
+      "explanation": "「The integrated platform is expected to launch in the third quarter of this year」と記載されています。第3四半期にローンチ予定です。",
+      "category": "読解"
+    },
+    {
+      "id": 93,
+      "part": "Part 7",
+      "difficulty": "medium",
+      "passage": "TechVista Solutions\nPress Release - For Immediate Release\nJanuary 18\n\nTechVista Solutions Announces Strategic Partnership with CloudNet Systems\n\nSAN FRANCISCO - TechVista Solutions, a leading provider of enterprise software, today announced a strategic partnership with CloudNet Systems to deliver integrated cloud computing solutions to mid-size businesses.\n\nUnder the terms of the agreement, TechVista will integrate its flagship project management platform, TaskFlow Pro, with CloudNet's cloud infrastructure services. The combined solution will enable businesses to manage projects, store data, and collaborate in a single unified environment.\n\n\"This partnership represents a significant milestone for both companies,\" said Maria Gonzalez, CEO of TechVista Solutions. \"Our customers have been asking for a more seamless cloud experience, and by joining forces with CloudNet, we can deliver exactly that.\"\n\nThe integrated platform is expected to launch in the third quarter of this year. Existing TaskFlow Pro customers will receive a complimentary three-month trial of the enhanced cloud features.\n\nTechVista Solutions, founded in 2010, serves over 5,000 businesses in 40 countries. CloudNet Systems, established in 2015, specializes in scalable cloud infrastructure for growing businesses.\n\nFor more information, visit www.techvista.com/partnership.",
+      "sentence": "What benefit will existing TaskFlow Pro customers receive?",
+      "choices": ["A) A permanent discount on cloud services", "B) A free three-month trial of new features", "C) Priority access to customer support", "D) A free upgrade to the premium plan"],
+      "correctIndex": 1,
+      "explanation": "「Existing TaskFlow Pro customers will receive a complimentary three-month trial of the enhanced cloud features」と記載されています。既存顧客は3ヶ月の無料トライアルを受けられます。",
+      "category": "読解"
+    },
+    {
+      "id": 94,
+      "part": "Part 7",
+      "difficulty": "hard",
+      "passage": "TechVista Solutions\nPress Release - For Immediate Release\nJanuary 18\n\nTechVista Solutions Announces Strategic Partnership with CloudNet Systems\n\nSAN FRANCISCO - TechVista Solutions, a leading provider of enterprise software, today announced a strategic partnership with CloudNet Systems to deliver integrated cloud computing solutions to mid-size businesses.\n\nUnder the terms of the agreement, TechVista will integrate its flagship project management platform, TaskFlow Pro, with CloudNet's cloud infrastructure services. The combined solution will enable businesses to manage projects, store data, and collaborate in a single unified environment.\n\n\"This partnership represents a significant milestone for both companies,\" said Maria Gonzalez, CEO of TechVista Solutions. \"Our customers have been asking for a more seamless cloud experience, and by joining forces with CloudNet, we can deliver exactly that.\"\n\nThe integrated platform is expected to launch in the third quarter of this year. Existing TaskFlow Pro customers will receive a complimentary three-month trial of the enhanced cloud features.\n\nTechVista Solutions, founded in 2010, serves over 5,000 businesses in 40 countries. CloudNet Systems, established in 2015, specializes in scalable cloud infrastructure for growing businesses.\n\nFor more information, visit www.techvista.com/partnership.",
+      "sentence": "Which company has been in business longer?",
+      "choices": ["A) CloudNet Systems", "B) TechVista Solutions", "C) Both were founded the same year", "D) The information is not provided"],
+      "correctIndex": 1,
+      "explanation": "TechVista Solutionsは2010年設立、CloudNet Systemsは2015年設立です。TechVistaの方が5年長く事業を行っています。",
+      "category": "読解"
+    },
+    {
+      "id": 95,
+      "part": "Part 7",
+      "difficulty": "hard",
+      "passage": "TechVista Solutions\nPress Release - For Immediate Release\nJanuary 18\n\nTechVista Solutions Announces Strategic Partnership with CloudNet Systems\n\nSAN FRANCISCO - TechVista Solutions, a leading provider of enterprise software, today announced a strategic partnership with CloudNet Systems to deliver integrated cloud computing solutions to mid-size businesses.\n\nUnder the terms of the agreement, TechVista will integrate its flagship project management platform, TaskFlow Pro, with CloudNet's cloud infrastructure services. The combined solution will enable businesses to manage projects, store data, and collaborate in a single unified environment.\n\n\"This partnership represents a significant milestone for both companies,\" said Maria Gonzalez, CEO of TechVista Solutions. \"Our customers have been asking for a more seamless cloud experience, and by joining forces with CloudNet, we can deliver exactly that.\"\n\nThe integrated platform is expected to launch in the third quarter of this year. Existing TaskFlow Pro customers will receive a complimentary three-month trial of the enhanced cloud features.\n\nTechVista Solutions, founded in 2010, serves over 5,000 businesses in 40 countries. CloudNet Systems, established in 2015, specializes in scalable cloud infrastructure for growing businesses.\n\nFor more information, visit www.techvista.com/partnership.",
+      "sentence": "What does Maria Gonzalez suggest about the partnership?",
+      "choices": ["A) It was initiated by CloudNet Systems", "B) It responds to customer demand", "C) It will result in lower prices", "D) It was planned several years ago"],
+      "correctIndex": 1,
+      "explanation": "Maria Gonzalezは「Our customers have been asking for a more seamless cloud experience」と述べています。このパートナーシップは顧客の要望に応えるものだと示唆しています。",
+      "category": "読解"
+    },
+    {
+      "id": 96,
+      "part": "Part 7",
+      "difficulty": "easy",
+      "passage": "Riverside Community Center\nSummer Programs Registration\n\nThe Riverside Community Center is now accepting registrations for our popular summer programs. Classes begin June 2 and run through August 22.\n\nYoga for Beginners\nTuesdays and Thursdays, 8:00 - 9:00 A.M.\nInstructor: Amy Larson\nFee: $120 for the full session\nNo experience necessary. Mats provided.\n\nDigital Photography Workshop\nSaturdays, 10:00 A.M. - 12:00 P.M.\nInstructor: Carlos Rivera\nFee: $180 for the full session\nParticipants must bring their own camera. Smartphones are acceptable.\n\nCooking Around the World\nWednesdays, 6:00 - 8:00 P.M.\nInstructor: Chef Priya Sharma\nFee: $200 for the full session (includes all ingredients)\nExplore cuisines from a different country each week.\n\nEarly registration discount: Sign up before May 15 and receive 10% off any class.\nFamily discount: Register two or more family members and get 15% off the second registration.\n\nRegister online at www.riversidecc.org or visit us at 45 Oak Street.\nFor questions, call (555) 312-7800.",
+      "sentence": "Which program is the least expensive?",
+      "choices": ["A) Yoga for Beginners", "B) Digital Photography Workshop", "C) Cooking Around the World", "D) They all cost the same"],
+      "correctIndex": 0,
+      "explanation": "Yoga for Beginnersが$120で最も安いプログラムです。Photography は$180、Cookingは$200です。",
+      "category": "読解"
+    },
+    {
+      "id": 97,
+      "part": "Part 7",
+      "difficulty": "medium",
+      "passage": "Riverside Community Center\nSummer Programs Registration\n\nThe Riverside Community Center is now accepting registrations for our popular summer programs. Classes begin June 2 and run through August 22.\n\nYoga for Beginners\nTuesdays and Thursdays, 8:00 - 9:00 A.M.\nInstructor: Amy Larson\nFee: $120 for the full session\nNo experience necessary. Mats provided.\n\nDigital Photography Workshop\nSaturdays, 10:00 A.M. - 12:00 P.M.\nInstructor: Carlos Rivera\nFee: $180 for the full session\nParticipants must bring their own camera. Smartphones are acceptable.\n\nCooking Around the World\nWednesdays, 6:00 - 8:00 P.M.\nInstructor: Chef Priya Sharma\nFee: $200 for the full session (includes all ingredients)\nExplore cuisines from a different country each week.\n\nEarly registration discount: Sign up before May 15 and receive 10% off any class.\nFamily discount: Register two or more family members and get 15% off the second registration.\n\nRegister online at www.riversidecc.org or visit us at 45 Oak Street.\nFor questions, call (555) 312-7800.",
+      "sentence": "What is required for the Digital Photography Workshop?",
+      "choices": ["A) Previous photography experience", "B) A professional camera", "C) A camera or smartphone", "D) A laptop computer"],
+      "correctIndex": 2,
+      "explanation": "「Participants must bring their own camera. Smartphones are acceptable.」と記載されています。カメラまたはスマートフォンが必要です。",
+      "category": "読解"
+    },
+    {
+      "id": 98,
+      "part": "Part 7",
+      "difficulty": "hard",
+      "passage": "Riverside Community Center\nSummer Programs Registration\n\nThe Riverside Community Center is now accepting registrations for our popular summer programs. Classes begin June 2 and run through August 22.\n\nYoga for Beginners\nTuesdays and Thursdays, 8:00 - 9:00 A.M.\nInstructor: Amy Larson\nFee: $120 for the full session\nNo experience necessary. Mats provided.\n\nDigital Photography Workshop\nSaturdays, 10:00 A.M. - 12:00 P.M.\nInstructor: Carlos Rivera\nFee: $180 for the full session\nParticipants must bring their own camera. Smartphones are acceptable.\n\nCooking Around the World\nWednesdays, 6:00 - 8:00 P.M.\nInstructor: Chef Priya Sharma\nFee: $200 for the full session (includes all ingredients)\nExplore cuisines from a different country each week.\n\nEarly registration discount: Sign up before May 15 and receive 10% off any class.\nFamily discount: Register two or more family members and get 15% off the second registration.\n\nRegister online at www.riversidecc.org or visit us at 45 Oak Street.\nFor questions, call (555) 312-7800.",
+      "sentence": "If a person registers for the Cooking class before May 15, how much will they pay?",
+      "choices": ["A) $160", "B) $170", "C) $180", "D) $190"],
+      "correctIndex": 2,
+      "explanation": "Cookingクラスの通常料金は$200です。5月15日前の早期登録割引は10%オフなので、$200 × 0.9 = $180となります。",
+      "category": "読解"
+    },
+    {
+      "id": 99,
+      "part": "Part 7",
+      "difficulty": "medium",
+      "passage": "Riverside Community Center\nSummer Programs Registration\n\nThe Riverside Community Center is now accepting registrations for our popular summer programs. Classes begin June 2 and run through August 22.\n\nYoga for Beginners\nTuesdays and Thursdays, 8:00 - 9:00 A.M.\nInstructor: Amy Larson\nFee: $120 for the full session\nNo experience necessary. Mats provided.\n\nDigital Photography Workshop\nSaturdays, 10:00 A.M. - 12:00 P.M.\nInstructor: Carlos Rivera\nFee: $180 for the full session\nParticipants must bring their own camera. Smartphones are acceptable.\n\nCooking Around the World\nWednesdays, 6:00 - 8:00 P.M.\nInstructor: Chef Priya Sharma\nFee: $200 for the full session (includes all ingredients)\nExplore cuisines from a different country each week.\n\nEarly registration discount: Sign up before May 15 and receive 10% off any class.\nFamily discount: Register two or more family members and get 15% off the second registration.\n\nRegister online at www.riversidecc.org or visit us at 45 Oak Street.\nFor questions, call (555) 312-7800.",
+      "sentence": "What is unique about the Cooking Around the World class?",
+      "choices": ["A) It is the longest running program", "B) It features a different cuisine each session", "C) It requires prior cooking experience", "D) It is only available to members"],
+      "correctIndex": 1,
+      "explanation": "「Explore cuisines from a different country each week」と記載されています。毎週異なる国の料理を探求するのがこのクラスの特徴です。",
+      "category": "読解"
+    },
+    {
+      "id": 100,
+      "part": "Part 7",
+      "difficulty": "hard",
+      "passage": "Riverside Community Center\nSummer Programs Registration\n\nThe Riverside Community Center is now accepting registrations for our popular summer programs. Classes begin June 2 and run through August 22.\n\nYoga for Beginners\nTuesdays and Thursdays, 8:00 - 9:00 A.M.\nInstructor: Amy Larson\nFee: $120 for the full session\nNo experience necessary. Mats provided.\n\nDigital Photography Workshop\nSaturdays, 10:00 A.M. - 12:00 P.M.\nInstructor: Carlos Rivera\nFee: $180 for the full session\nParticipants must bring their own camera. Smartphones are acceptable.\n\nCooking Around the World\nWednesdays, 6:00 - 8:00 P.M.\nInstructor: Chef Priya Sharma\nFee: $200 for the full session (includes all ingredients)\nExplore cuisines from a different country each week.\n\nEarly registration discount: Sign up before May 15 and receive 10% off any class.\nFamily discount: Register two or more family members and get 15% off the second registration.\n\nRegister online at www.riversidecc.org or visit us at 45 Oak Street.\nFor questions, call (555) 312-7800.",
+      "sentence": "Which of the following is NOT a way to register for classes?",
+      "choices": ["A) By visiting the center in person", "B) By registering on the website", "C) By calling the center", "D) By sending an email"],
+      "correctIndex": 3,
+      "explanation": "登録方法として「Register online（オンライン）」と「visit us at 45 Oak Street（来館）」が記載されています。電話番号は質問用です。メールでの登録については言及されていません。",
+      "category": "読解"
+    }
+  ]
+};
+
+// ============================================================
+// TOEIC Practice App - Main Application Logic
+// ============================================================
+
+let allQuestions = [];
+let quizQuestions = [];
+let currentIndex = 0;
+let answers = []; // { questionId, selectedIndex, isCorrect, timeSpent }
+let questionStartTime = null;
+let lastAnswer = null;
+let currentFilter = null;
+
+const PART_INFO = {
+  'Part 5': { title: 'Part 5: 短文穴埋め', icon: '📝' },
+  'Part 6': { title: 'Part 6: 長文穴埋め', icon: '📄' },
+  'Part 7': { title: 'Part 7: 読解問題', icon: '📖' },
+};
+
+const DIFFICULTY_LABELS = {
+  easy: '初級', medium: '中級', hard: '上級'
+};
+
+// ============================================================
+// Initialization
+// ============================================================
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadQuestions();
+  renderHome();
+});
+
+
+async function loadQuestions() {
+  allQuestions = QUESTIONS_DATA.questions;
+}
+
+// ============================================================
+// Home Screen
+// ============================================================
+
+function renderHome() {
+  document.getElementById('total-count').textContent = allQuestions.length + '問';
+
+  const container = document.getElementById('part-cards');
+  container.innerHTML = '';
+
+  for (const [part, info] of Object.entries(PART_INFO)) {
+    const count = allQuestions.filter(q => q.part === part).length;
+    const card = document.createElement('button');
+    card.className = 'part-card';
+    card.onclick = () => startQuiz(part);
+    card.innerHTML = `
+      <div class="part-icon">${info.icon}</div>
+      <div class="part-info">
+        <strong>${info.title}</strong>
+        <small>${count}問</small>
+      </div>
+      <span class="part-arrow">›</span>
+    `;
+    container.appendChild(card);
+  }
+}
+
+// ============================================================
+// Screen Management
+// ============================================================
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ============================================================
+// Quiz Logic
+// ============================================================
+
+function startQuiz(part, count) {
+  let questions = part
+    ? allQuestions.filter(q => q.part === part)
+    : [...allQuestions];
+
+  // Shuffle
+  for (let i = questions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [questions[i], questions[j]] = [questions[j], questions[i]];
+  }
+
+  if (count && count < questions.length) {
+    questions = questions.slice(0, count);
+  }
+
+  quizQuestions = questions;
+  currentIndex = 0;
+  answers = [];
+  lastAnswer = null;
+  currentFilter = part;
+
+  showQuizQuestion();
+}
+
+function showQuizQuestion() {
+  showScreen('screen-quiz');
+  const q = quizQuestions[currentIndex];
+  const total = quizQuestions.length;
+
+  // Progress
+  const pct = ((currentIndex) / total) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  // Badges
+  document.getElementById('badge-part').textContent = q.part;
+  document.getElementById('badge-category').textContent = q.category;
+
+  const diffBadge = document.getElementById('badge-difficulty');
+  diffBadge.textContent = DIFFICULTY_LABELS[q.difficulty];
+  diffBadge.className = 'badge badge-difficulty ' + q.difficulty;
+
+  // Passage
+  const passageArea = document.getElementById('passage-area');
+  if (q.passage) {
+    passageArea.textContent = q.passage;
+    passageArea.classList.add('visible');
+  } else {
+    passageArea.textContent = '';
+    passageArea.classList.remove('visible');
+  }
+
+  // Question
+  document.getElementById('question-text').textContent = q.sentence;
+
+  // Choices
+  const choicesDiv = document.getElementById('choices');
+  choicesDiv.innerHTML = '';
+  q.choices.forEach((choice, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = choice;
+    btn.onclick = () => submitAnswer(idx);
+    choicesDiv.appendChild(btn);
+  });
+
+  // Counter
+  document.getElementById('quiz-counter').textContent =
+    `Q${currentIndex + 1} / ${total}`;
+
+  questionStartTime = Date.now();
+}
+
+function submitAnswer(selectedIndex) {
+  const q = quizQuestions[currentIndex];
+  const timeSpent = (Date.now() - questionStartTime) / 1000;
+  const isCorrect = selectedIndex === q.correctIndex;
+
+  lastAnswer = {
+    questionId: q.id,
+    selectedIndex,
+    isCorrect,
+    timeSpent,
+  };
+
+  showExplanation();
+}
+
+// ============================================================
+// Explanation Screen
+// ============================================================
+
+function showExplanation() {
+  showScreen('screen-explanation');
+  const q = quizQuestions[currentIndex];
+  const total = quizQuestions.length;
+  const a = lastAnswer;
+
+  // Progress
+  const pct = ((currentIndex + 1) / total) * 100;
+  document.getElementById('progress-fill-exp').style.width = pct + '%';
+
+  // Banner
+  const banner = document.getElementById('result-banner');
+  banner.className = 'result-banner ' + (a.isCorrect ? 'correct' : 'incorrect');
+  banner.innerHTML = `
+    <span class="banner-icon">${a.isCorrect ? '✅' : '❌'}</span>
+    <div class="banner-text">
+      <strong>${a.isCorrect ? '正解！' : '不正解'}</strong>
+      <small>回答時間: ${a.timeSpent.toFixed(1)}秒</small>
+    </div>
+  `;
+
+  // Passage
+  const passageArea = document.getElementById('exp-passage-area');
+  if (q.passage) {
+    passageArea.textContent = q.passage;
+    passageArea.classList.add('visible');
+  } else {
+    passageArea.textContent = '';
+    passageArea.classList.remove('visible');
+  }
+
+  // Question
+  document.getElementById('exp-question-text').textContent = q.sentence;
+
+  // Choices with states
+  const choicesDiv = document.getElementById('exp-choices');
+  choicesDiv.innerHTML = '';
+  q.choices.forEach((choice, idx) => {
+    const btn = document.createElement('button');
+    let cls = 'choice-btn';
+    let icon = '';
+
+    if (idx === q.correctIndex) {
+      cls += ' correct';
+      icon = '✓';
+    } else if (idx === a.selectedIndex && !a.isCorrect) {
+      cls += ' incorrect';
+      icon = '✗';
+    } else {
+      cls += ' dimmed';
+    }
+
+    btn.className = cls;
+    btn.disabled = true;
+    btn.innerHTML = `<span>${choice}</span>${icon ? `<span class="choice-icon">${icon}</span>` : ''}`;
+    choicesDiv.appendChild(btn);
+  });
+
+  // Explanation
+  document.getElementById('explanation-text').textContent = q.explanation;
+
+  // Next button text
+  const btnNext = document.getElementById('btn-next');
+  btnNext.textContent = (currentIndex + 1 < total) ? '次の問題へ' : '結果を見る';
+}
+
+function nextQuestion() {
+  answers.push(lastAnswer);
+  lastAnswer = null;
+
+  if (currentIndex + 1 < quizQuestions.length) {
+    currentIndex++;
+    showQuizQuestion();
+  } else {
+    showResult();
+  }
+}
+
+// ============================================================
+// Result Screen
+// ============================================================
+
+function showResult() {
+  showScreen('screen-result');
+
+  const total = answers.length;
+  const correct = answers.filter(a => a.isCorrect).length;
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+  // Score circle
+  const ring = document.getElementById('score-ring');
+  const circumference = 2 * Math.PI * 52; // r=52
+  const offset = circumference * (1 - pct / 100);
+
+  // Color
+  let color;
+  if (pct >= 80) color = 'var(--green)';
+  else if (pct >= 60) color = 'var(--orange)';
+  else color = 'var(--red)';
+
+  ring.style.stroke = color;
+  // Trigger animation
+  setTimeout(() => {
+    ring.style.strokeDashoffset = offset;
+  }, 100);
+
+  document.getElementById('score-percent').textContent = pct + '%';
+  document.getElementById('score-percent').style.color = color;
+  document.getElementById('score-fraction').textContent = `${correct} / ${total}`;
+
+  // Message
+  let msg;
+  if (pct >= 90) msg = '素晴らしい！完璧に近い成績です！';
+  else if (pct >= 80) msg = 'よくできました！この調子で頑張りましょう！';
+  else if (pct >= 60) msg = 'まずまずの結果です。苦手分野を復習しましょう。';
+  else if (pct >= 40) msg = 'もう少し頑張りましょう。基礎から見直してみましょう。';
+  else msg = '基礎からしっかり学習しましょう。繰り返し練習が大切です。';
+  document.getElementById('score-message').textContent = msg;
+
+  // Stats
+  document.getElementById('stat-correct').textContent = correct;
+  document.getElementById('stat-incorrect').textContent = total - correct;
+  document.getElementById('stat-rate').textContent = pct + '%';
+
+  // Part breakdown
+  const breakdown = document.getElementById('part-breakdown');
+  if (!currentFilter) {
+    let html = '<div class="part-breakdown-title">パート別結果</div>';
+    for (const part of ['Part 5', 'Part 6', 'Part 7']) {
+      const partAnswers = answers.filter(a => {
+        const q = quizQuestions.find(q => q.id === a.questionId);
+        return q && q.part === part;
+      });
+      if (partAnswers.length === 0) continue;
+      const partCorrect = partAnswers.filter(a => a.isCorrect).length;
+      const partPct = Math.round((partCorrect / partAnswers.length) * 100);
+      let barColor;
+      if (partPct >= 70) barColor = 'var(--green)';
+      else if (partPct >= 50) barColor = 'var(--orange)';
+      else barColor = 'var(--red)';
+
+      html += `
+        <div class="part-result-row">
+          <span class="part-result-name">${PART_INFO[part].title}</span>
+          <span class="part-result-score">${partCorrect}/${partAnswers.length}</span>
+          <div class="part-result-bar">
+            <div class="part-result-bar-fill" style="width:${partPct}%; background:${barColor}"></div>
+          </div>
+        </div>
+      `;
+    }
+    breakdown.innerHTML = html;
+  } else {
+    breakdown.innerHTML = '';
+  }
+}
+
+// ============================================================
+// Navigation
+// ============================================================
+
+function confirmQuit() {
+  if (confirm('クイズを終了しますか？進捗は保存されません。')) {
+    goHome();
+  }
+}
+
+function goHome() {
+  // Reset score ring for next time
+  const ring = document.getElementById('score-ring');
+  ring.style.strokeDashoffset = 326.7;
+  showScreen('screen-home');
+}
+
+function retryQuiz() {
+  // Reset ring
+  const ring = document.getElementById('score-ring');
+  ring.style.strokeDashoffset = 326.7;
+
+  // Reshuffle same questions
+  for (let i = quizQuestions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [quizQuestions[i], quizQuestions[j]] = [quizQuestions[j], quizQuestions[i]];
+  }
+  currentIndex = 0;
+  answers = [];
+  lastAnswer = null;
+  showQuizQuestion();
+}
+
+// Service Worker Registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered'))
+      .catch(err => console.log('SW registration failed:', err));
+  });
+}
+
+  </script>
+</body>
+</html>
