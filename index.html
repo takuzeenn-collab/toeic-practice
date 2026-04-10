@@ -154,6 +154,42 @@ body {
 .mini-quiz-btn.red strong { color: var(--red); }
 .mini-quiz-btn small { color: var(--text-secondary); font-size: 13px; }
 
+/* Difficulty Cards */
+.difficulty-card {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 10px;
+  cursor: pointer;
+  gap: 14px;
+  border: none;
+  width: 100%;
+  text-align: left;
+  transition: transform 0.15s;
+}
+.difficulty-card:active { transform: scale(0.98); }
+
+.diff-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.diff-icon.easy { background: var(--green-light); color: var(--green); }
+.diff-icon.medium { background: var(--orange-light); color: var(--orange); }
+.diff-icon.hard { background: var(--red-light); color: var(--red); }
+
+.diff-info { flex: 1; }
+.diff-info strong { display: block; font-size: 15px; }
+.diff-info small { color: var(--text-secondary); font-size: 13px; }
+
 /* ========== QUIZ ========== */
 .progress-bar {
   height: 4px;
@@ -538,6 +574,9 @@ body {
 
       <h2 class="section-title">パート別学習</h2>
       <div id="part-cards"></div>
+
+      <h2 class="section-title">難易度別学習</h2>
+      <div id="difficulty-cards"></div>
 
       <h2 class="section-title">ミニテスト</h2>
       <div class="mini-quiz-row">
@@ -9480,6 +9519,12 @@ async function loadQuestions() {
 // Home Screen
 // ============================================================
 
+const DIFF_INFO = {
+  easy:   { label: '初級', icon: '🟢', desc: '基礎的な語彙・文法' },
+  medium: { label: '中級', icon: '🟠', desc: '実践的なビジネス英語' },
+  hard:   { label: '上級', icon: '🔴', desc: '高度な表現・構文' },
+};
+
 function renderHome() {
   document.getElementById('total-count').textContent = allQuestions.length + '問';
 
@@ -9501,6 +9546,26 @@ function renderHome() {
     `;
     container.appendChild(card);
   }
+
+  // Difficulty cards
+  const diffContainer = document.getElementById('difficulty-cards');
+  diffContainer.innerHTML = '';
+
+  for (const [diff, info] of Object.entries(DIFF_INFO)) {
+    const count = allQuestions.filter(q => q.difficulty === diff).length;
+    const card = document.createElement('button');
+    card.className = 'difficulty-card';
+    card.onclick = () => startQuiz(null, null, diff);
+    card.innerHTML = `
+      <div class="diff-icon ${diff}">${info.icon}</div>
+      <div class="diff-info">
+        <strong>${info.label}</strong>
+        <small>${info.desc}（${count}問）</small>
+      </div>
+      <span class="part-arrow">›</span>
+    `;
+    diffContainer.appendChild(card);
+  }
 }
 
 // ============================================================
@@ -9517,10 +9582,15 @@ function showScreen(id) {
 // Quiz Logic
 // ============================================================
 
-function startQuiz(part, count) {
-  let questions = part
-    ? allQuestions.filter(q => q.part === part)
-    : [...allQuestions];
+function startQuiz(part, count, difficulty) {
+  let questions = [...allQuestions];
+
+  if (part) {
+    questions = questions.filter(q => q.part === part);
+  }
+  if (difficulty) {
+    questions = questions.filter(q => q.difficulty === difficulty);
+  }
 
   // Shuffle
   for (let i = questions.length - 1; i > 0; i--) {
